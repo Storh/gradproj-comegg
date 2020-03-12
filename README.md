@@ -1,6 +1,7 @@
 # gradproj-comegg
 base on egg.js
-this is master branch
+This is dev branch.
+This file would be edit befor merge.
 ## QuickStart
 
 <!-- add docs here for user -->
