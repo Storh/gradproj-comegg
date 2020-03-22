@@ -18,6 +18,30 @@ module.exports = appInfo => {
   // add your middleware config here
   config.middleware = [];
 
+  // config/config.${env}.js
+  exports.mysql = {
+  // 单数据库信息配置
+    client: {
+    // host
+      host: 'rm-uf6vwri7l8a0553ne0o.mysql.rds.aliyuncs.com',
+      // 端口号
+      port: '3306',
+      // 用户名
+      user: 'gradpro_admin',
+      // 密码
+      password: 'GradP@sw0lddh19463n',
+      // 数据库名
+      database: 'gradproj',
+    },
+    // 是否加载到 app 上，默认开启
+    app: true,
+    // 是否加载到 agent 上，默认关闭
+    agent: false,
+  };
+
+  exports.jwt = {
+    secret: 'G2adPr0j',
+  };
   // add your user config here
   const userConfig = {
     // myAppName: 'egg',
