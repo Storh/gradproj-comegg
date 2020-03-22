@@ -6,6 +6,14 @@ module.exports = {
   static: {
     enable: true,
   },
+  mysql: {
+    enable: true,
+    package: 'egg-mysql',
+  },
+  ailer: {
+    enable: true,
+    package: 'egg-crypto',
+  },
   jwt: {
     enable: true,
     package: 'egg-jwt',

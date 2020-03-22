@@ -6,4 +6,5 @@
 module.exports = app => {
   const { router, controller } = app;
   router.get('/', controller.home.index);
+  router.post('/app/member/phoneLogin/bindPhone', controller.member.phoneLogin.bindPhone);
 };

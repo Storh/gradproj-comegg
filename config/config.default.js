@@ -18,6 +18,13 @@ module.exports = appInfo => {
   // add your middleware config here
   config.middleware = [];
 
+  // 安全策略暂时关闭，防止无法开发
+  config.security = {
+    csrf: {
+      enable: false,
+    },
+  };
+
   // config/config.${env}.js
   exports.mysql = {
   // 单数据库信息配置
