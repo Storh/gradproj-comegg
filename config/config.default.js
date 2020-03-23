@@ -16,7 +16,7 @@ module.exports = appInfo => {
   config.keys = appInfo.name + '_1584019421199_9328';
 
   // add your middleware config here
-  config.middleware = [];
+  config.middleware = [ 'jwtErrorHandler' ];
 
   // 安全策略暂时关闭，防止无法开发
   config.security = {
