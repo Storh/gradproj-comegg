@@ -4,11 +4,12 @@ module.exports = (options, app) => {
   return async (ctx, next) => {
     try {
       await next();
-      ctx.body.error = 0;
-      ctx.body.message = '';
+      if (!ctx.body.error) {
+        ctx.body.error = 0;
+        ctx.body.message = '';
+      }
     } catch (err) {
       ctx.app.emit('error', err, ctx);
-      // console.log(err);
       if (
         ctx.path.includes('/') &&
         err instanceof app.jwt.UnauthorizedError
