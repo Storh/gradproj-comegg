@@ -4,10 +4,8 @@ module.exports = (options, app) => {
   return async (ctx, next) => {
     try {
       await next();
-      ctx.body = {
-        error: 0,
-        message: '',
-      };
+      ctx.body.error = 0;
+      ctx.body.message = '';
     } catch (err) {
       ctx.app.emit('error', err, ctx);
       // console.log(err);
@@ -24,7 +22,7 @@ module.exports = (options, app) => {
         ctx.status = 200;
         ctx.body = {
           error: 1,
-          message: '数据更新错误',
+          message: '数据错误',
           data: {},
         };
       }
