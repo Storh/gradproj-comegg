@@ -10,8 +10,6 @@ class BaseDataController extends Controller {
       columns: [ 'id', 'name' ],
     });
     ctx.body = {
-      error: 0,
-      message: '',
       data: { list: distList },
     };
   }
