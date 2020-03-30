@@ -45,6 +45,7 @@ class PhoneLoginController extends Controller {
       return_data.nickname = '';
       return_data.headimgurl = headimgurl;
       return_data.token = token;
+      return_data.need_info = 1;// 需要完善信息
     }
     ctx.body = {
       error: error_code,
@@ -59,9 +60,9 @@ class PhoneLoginController extends Controller {
     sign_user_info.user_id = user_info.user_id;
     sign_user_info.nickname = user_info.nickname;
     sign_user_info.headimgurl = user_info.headimgurl;
+    sign_user_info.need_info = 1;// 需要完善信息
     if (user_info.districts) {
       sign_user_info.need_info = 0;// 不需要完善信息
-      sign_user_info.need_info = 1;// 需要完善信息
     }
     return sign_user_info;
   }
