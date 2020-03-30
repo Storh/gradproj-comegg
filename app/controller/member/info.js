@@ -11,20 +11,10 @@ class InfoController extends Controller {
       nickname: reqData.nickname,
       district_id: reqData.district_id,
     };
-    try {
-      await this.app.mysql.update('userinfo', upDataInfo, { where: { user_id } });
-      ctx.body = {
-        error: 0,
-        message: '',
-        data: { },
-      };
-    } catch (err) {
-      ctx.body = {
-        error: 1,
-        message: '数据更新错误',
-        data: { },
-      };
-    }
+    await this.app.mysql.update('userinfo', upDataInfo, { where: { user_id } });
+    ctx.body = {
+      data: {},
+    };
   }
 }
 
