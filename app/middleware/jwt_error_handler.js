@@ -18,17 +18,16 @@ module.exports = (options, app) => {
         ctx.body = {
           error: -1, // 无权限
         };
-        // return;
       } else {
+        // 自定义错误返回的data内容
+        const data = err.data ? err.data : {};
         ctx.status = 200;
         ctx.body = {
           error: 1,
-          message: '数据错误',
-          data: {},
+          message: err.message, // 根据抛出内容返回message
+          data,
         };
       }
-      // return;
-      // throw err;
     }
   };
 };
