@@ -80,7 +80,7 @@ class PhoneLoginController extends Controller {
   async login() {
     const { ctx, app } = this;
     // const abody = ctx.state.user;
-    // console.log(abody);
+    console.log(app.config.dbprefix);
     const token = app.jwt.sign({ foo: 'bar' }, app.config.jwt.secret, { expiresIn: '3 days' });
     // const token = app.jwt.sign({ foo: 'bar' }, app.config.jwt.secret, { expiresIn: 10 });
     ctx.body = {
