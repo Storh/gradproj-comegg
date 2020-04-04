@@ -7,8 +7,8 @@ class PhoneLoginController extends Controller {
     const { ctx } = this;
     const phone_passw = ctx.request.body;
     if (phone_passw.passWord && phone_passw.phone) {
-      const results = await ctx.service.login.authUserInfoLogin(phone_passw);
-      console.log(results);
+      const data = await ctx.service.login.authUserInfoLogin(phone_passw);
+      ctx.body = { data };
     } else {
       this.ctx.throw('登录数据不完整');
     }
