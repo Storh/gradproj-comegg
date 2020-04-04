@@ -19,7 +19,6 @@ class LoginService extends Service {
         if (user_login.state === 0) {
           this.ctx.throw('用户已禁用');
         } else {
-
           const user_id = user_login.user_id;
           const need_info = user_login.district_id ? 0 : 1;
           const nickname = user_login.user_id;
