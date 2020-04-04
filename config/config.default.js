@@ -60,6 +60,7 @@ module.exports = appInfo => {
   const userConfig = {
     // 采用app.config.XX访问
     dbprefix: 'al_', // 数据库表前缀
+
     // myAppName: 'egg',
   };
 
