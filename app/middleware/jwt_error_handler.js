@@ -4,7 +4,7 @@ module.exports = (options, app) => {
   return async (ctx, next) => {
     try {
       await next();
-      if (!ctx.body.error) {
+      if (ctx.body && !ctx.body.error) {
         ctx.body.error = 0;
         ctx.body.message = '';
       }
