@@ -22,7 +22,7 @@ class MainController extends Controller {
     }
 
     const resultsrow = await ctx.service.content.main.getList(user_id, reqData);
-    const results = [];
+    const list = [];
     resultsrow.forEach(element => {
       if (element.image) {
         const imageArr = element.image.split(',');
@@ -36,11 +36,11 @@ class MainController extends Controller {
       }
       if (element.like_num > 99) { element.like_num = '99+'; }
       if (element.headimgurl.length < 20) { element.headimgurl = this.app.config.publicAdd + element.headimgurl; }
-      results.push(element);
+      list.push(element);
     });
 
     ctx.body = {
-      data: { results },
+      data: { list },
     };
 
   }
