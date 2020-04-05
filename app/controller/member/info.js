@@ -14,9 +14,9 @@ class InfoController extends Controller {
     if (!reqData.district_id) {
       this.ctx.throw('所在小区ID不能为空');
     }
-    if (!Number.isInteger(reqData.district_id)) {
-      this.ctx.throw('无效小区ID');
-    }
+    // if (!Number.isInteger(reqData.district_id)) {
+    //   this.ctx.throw('无效小区ID');
+    // }
 
     const updateSuccess = await ctx.service.member.info.reg(user_id, reqData);
     if (updateSuccess) {
