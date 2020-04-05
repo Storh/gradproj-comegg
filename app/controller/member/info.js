@@ -32,15 +32,16 @@ class InfoController extends Controller {
     const { ctx } = this;
     const user_id = ctx.request.body.user_id;// 获取post数据
     console.log(ctx.request.body);
-    if (!Number.isInteger(user_id)) {
-      this.ctx.throw('无效用户ID');
-    }
+    // if (!Number.isInteger(user_id)) {
+    //   this.ctx.throw('无效用户ID');
+    // }
     // 基础数据
     const userInfo = await ctx.service.member.info.getInfo(user_id);
     if (userInfo.headimgurl.length < 20) { userInfo.headimgurl = this.app.config.publicAdd + userInfo.headimgurl; }
     // 地址信息
-    const estaterow = await ctx.service.common.district.getDistById(userInfo.district_id);
-    const streetrow = await ctx.service.common.district.getDistById(estaterow.parent_id);
+    console.log(userInfo);
+    const estaterow = await ctx.service.common.getDistById(userInfo.district_id);
+    const streetrow = await ctx.service.common.getDistById(estaterow.parent_id);
     userInfo.districts = {
       estate: {
         id: estaterow.district_id,
@@ -52,9 +53,9 @@ class InfoController extends Controller {
       },
     };
     // 职业特长
-    userInfo.speciality = await ctx.service.common.sphob.getUserSpecHobyById(user_id, 'speciality');
+    userInfo.speciality = await ctx.service.common.getUserSpecHobyById(user_id, 'speciality');
     // 业余爱好
-    userInfo.hobby = await ctx.service.common.sphob.getUserSpecHobyById(user_id, 'hobby');
+    userInfo.hobby = await ctx.service.common.getUserSpecHobyById(user_id, 'hobby');
     ctx.body = {
       data: userInfo,
     };

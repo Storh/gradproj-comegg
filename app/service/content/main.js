@@ -3,6 +3,11 @@
 const Service = require('egg').Service;
 
 class MainService extends Service {
+//   async setLike(user_id, reqData) {
+
+
+  //   }
+
   async getList(user_id, reqData) {
     // [1,2,3,4,5,6]
     // ['互助','问答','乐享','活动','团购','话题']
