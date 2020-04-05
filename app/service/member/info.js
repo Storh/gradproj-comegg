@@ -18,6 +18,13 @@ class InfoService extends Service {
     const updateSuccess = result.affectedRows === 1;
     return updateSuccess;
   }
+  async getInfo(user_id) {
+    const result = await this.app.mysql.select(this.app.config.dbprefix + 'user_profile', { // 搜索 post 表
+      where: { user_id, state: 1 }, // WHERE 条件
+      columns: [ 'user_id', 'phone', 'nickname', 'headimgurl', 'sex', 'district_id', 'personal_signature', 'is_manage' ], // 要查询的表字段
+    });
+    return JSON.parse(JSON.stringify(result))[0];
+  }
 }
 
 module.exports = InfoService;

@@ -60,6 +60,8 @@ module.exports = appInfo => {
   const userConfig = {
     // 采用app.config.XX访问
     dbprefix: 'al_', // 数据库表前缀
+    serviceUrl: 'http://127.0.0.1:7001', // 服务器地址
+    publicAdd: 'http://127.0.0.1:7001/public', // 静态资源地址
     // myAppName: 'egg',
   };
 

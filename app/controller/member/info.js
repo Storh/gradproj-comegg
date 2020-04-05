@@ -31,7 +31,29 @@ class InfoController extends Controller {
   async getInfo() {
     const { ctx } = this;
     const user_id = ctx.request.body.user_id;// 获取post数据
-    const userInfo = await ctx.service.user.userInfo(user_id);
+    if (Number.isInteger(user_id)) {
+      this.ctx.throw('无效用户ID');
+    }
+    // 基础数据
+    const userInfo = await ctx.service.member.info.getInfo(user_id);
+    if (userInfo.headimgurl.length < 20) { userInfo.headimgurl = this.app.config.publicAdd + userInfo.headimgurl; }
+    // 地址信息
+    const estaterow = await ctx.service.common.district.getDistById(userInfo.district_id);
+    const streetrow = await ctx.service.common.district.getDistById(estaterow.parent_id);
+    userInfo.districts = {
+      estate: {
+        id: estaterow.district_id,
+        name: estaterow.name,
+      },
+      street: {
+        id: streetrow.district_id,
+        name: streetrow.name,
+      },
+    };
+    // 职业特长
+    userInfo.speciality = await ctx.service.common.sphob.getUserSpecHobyById(user_id, 'speciality');
+    // 业余爱好
+    userInfo.hobby = await ctx.service.common.sphob.getUserSpecHobyById(user_id, 'hobby');
     ctx.body = {
       data: userInfo,
     };

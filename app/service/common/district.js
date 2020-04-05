@@ -35,6 +35,11 @@ class DistrictService extends Service {
     });
     return list;
   }
+
+  async getDistById(district_id) {
+    const result = await this.app.mysql.get(this.app.config.dbprefix + 'district', { district_id });
+    return JSON.parse(JSON.stringify(result));
+  }
 }
 
 module.exports = DistrictService;

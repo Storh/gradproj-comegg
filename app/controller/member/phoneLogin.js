@@ -18,7 +18,8 @@ class PhoneLoginController extends Controller {
     const { ctx, app } = this;
     // const abody = ctx.state.user;
     // console.log(app.config.dbprefix);
-    const token = app.jwt.sign({ foo: 'bar' }, app.config.jwt.secret, { expiresIn: '3 days' });
+    const token = app.jwt.sign({ user_id: 1 }, app.config.jwt.secret, { expiresIn: '3 days' });
+    // app.jwt.sign({ foo: 'bar' }, app.config.jwt.secret, { expiresIn: '3 days' });
     // const token = app.jwt.sign({ foo: 'bar' }, app.config.jwt.secret, { expiresIn: 10 });
     // this.ctx.throw('有猫饼', { data: { token }, myErrType: 255 });
     // this.ctx.throw('有猫饼', { data: { token } });
