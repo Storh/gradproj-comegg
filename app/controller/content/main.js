@@ -21,7 +21,23 @@ class MainController extends Controller {
       this.ctx.throw('无效社区筛选类型');
     }
 
-    const results = await ctx.service.content.main.getList(user_id, reqData);
+    const resultsrow = await ctx.service.content.main.getList(user_id, reqData);
+    const results = [];
+    resultsrow.forEach(element => {
+      if (element.image) {
+        const imageArr = element.image.split(',');
+        element.image = {
+          src: this.app.config.publicAdd + imageArr[0],
+          width: imageArr[1],
+          height: imageArr[2],
+        };
+      } else {
+        element.image = '';
+      }
+      if (element.like_num > 99) { element.like_num = '99+'; }
+      if (element.headimgurl.length < 20) { element.headimgurl = this.app.config.publicAdd + element.headimgurl; }
+      results.push(element);
+    });
 
     ctx.body = {
       data: { results },
