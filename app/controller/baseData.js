@@ -5,12 +5,9 @@ const Controller = require('egg').Controller;
 class BaseDataController extends Controller {
   async distList() {
     const { ctx } = this;
-    const distList = await this.app.mysql.select('estate', {
-      where: { visible: 1 },
-      columns: [ 'id', 'name' ],
-    });
+    const list = await ctx.service.common.district.getListByType('estate');
     ctx.body = {
-      data: { list: distList },
+      data: { list },
     };
   }
 }

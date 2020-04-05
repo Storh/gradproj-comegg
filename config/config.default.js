@@ -34,9 +34,9 @@ module.exports = appInfo => {
 
   // config/config.${env}.js
   exports.mysql = {
-  // 单数据库信息配置
+    // 单数据库信息配置
     client: {
-    // host
+      // host
       host: 'rm-uf6vwri7l8a0553ne0o.mysql.rds.aliyuncs.com',
       // 端口号
       port: '3306',
@@ -58,6 +58,10 @@ module.exports = appInfo => {
   };
   // add your user config here
   const userConfig = {
+    // 采用app.config.XX访问
+    dbprefix: 'al_', // 数据库表前缀
+    serviceUrl: 'http://127.0.0.1:7001', // 服务器地址
+    publicAdd: 'http://127.0.0.1:7001/public', // 静态资源地址
     // myAppName: 'egg',
   };
 
