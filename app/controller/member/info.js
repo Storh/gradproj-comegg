@@ -14,7 +14,7 @@ class InfoController extends Controller {
     if (!reqData.district_id) {
       this.ctx.throw('所在小区ID不能为空');
     }
-    if (Number.isInteger(reqData.district_id)) {
+    if (!Number.isInteger(reqData.district_id)) {
       this.ctx.throw('无效小区ID');
     }
 
@@ -31,7 +31,8 @@ class InfoController extends Controller {
   async getInfo() {
     const { ctx } = this;
     const user_id = ctx.request.body.user_id;// 获取post数据
-    if (Number.isInteger(user_id)) {
+    console.log(ctx.request.body);
+    if (!Number.isInteger(user_id)) {
       this.ctx.throw('无效用户ID');
     }
     // 基础数据
