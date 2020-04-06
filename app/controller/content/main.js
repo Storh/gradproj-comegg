@@ -64,7 +64,11 @@ class MainController extends Controller {
     // }
 
     const results = await ctx.service.content.main.setLike(user_id, reqData);
-
+    if (results) {
+      ctx.body = {
+        data: { },
+      };
+    }
 
   }
 }

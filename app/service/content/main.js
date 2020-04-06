@@ -3,10 +3,109 @@
 const Service = require('egg').Service;
 
 class MainService extends Service {
-//   async setLike(user_id, reqData) {
+  async setLike(user_id, reqData) {
+    const like_state = Number(reqData.like_state);
+    // 获取动态内容
+    const { ctx, app } = this;
+    const contentBaseInfoRow = await this.app.mysql.select(this.app.config.dbprefix + 'content_record', {
+      where: { content_id: reqData.content_id, state: 1, is_delete: 0 },
+      columns: [ 'content_id', 'type_id', 'user_id', 'content', 'like_num' ],
+    });
 
+    const contentBaseInfo = JSON.parse(JSON.stringify(contentBaseInfoRow))[0];
+    const receive_user_id = contentBaseInfo.user_id;
+    const content_type = contentBaseInfo.type_id;
+    const desc = contentBaseInfo.content;
+    const like_num_ori = contentBaseInfo.like_num;
 
-  //   }
+    const date_now = ctx.service.base.fromatDate(new Date().getTime());
+    // 自动事务
+    let like_state_ori;
+    let like_id;
+    const trans_success = await app.mysql.beginTransactionScope(async conn => {
+      // 读取点赞记录
+      //   动态内容(1); 用户参与(2);评论(3)
+      const type = 1;
+      const is_setlike_log = await conn.get(this.app.config.dbprefix + 'like_record', {
+        type_id: type,
+        user_id,
+        rel_id: reqData.content_id,
+      });
+      if (!is_setlike_log) {
+        // 未设置喜欢
+        if (like_state === 0) {
+          ctx.throw('您还未点赞');
+        } else {
+          like_state_ori = -1;
+          const set_like_log = await conn.insert(app.config.dbprefix + 'like_record', {
+            type_id: type,
+            user_id,
+            rel_id: reqData.content_id,
+            content_type,
+            like_state,
+            add_time: date_now,
+          });
+          if (set_like_log) {
+            like_id = set_like_log.insertId;
+          } else {
+            ctx.throw('操作失败');
+          }
+        }
+
+      } else {
+        const setlike_log = JSON.parse(JSON.stringify(is_setlike_log));
+        like_id = setlike_log.like_id;
+        like_state_ori = setlike_log.like_state;
+        await conn.update(app.config.dbprefix + 'like_record',
+          {
+            like_state,
+            modify_time: date_now,
+          },
+          { where: { like_id } });
+      }
+      // 更新动态内容表
+      if (like_state_ori !== like_state) {
+        const like_num_offset = like_state === 1 ? 1 : -1;
+
+        if (like_num_ori === 0 && like_num_offset < 0) {
+          console.log('中奖了');
+        } else {
+          const sqlstr = 'UPDATE ' + app.config.dbprefix + 'content_record '
+                        + 'SET like_num = like_num + (' + like_num_offset + ') '
+                        + 'WHERE content_id = ' + reqData.content_id;
+          await conn.query(sqlstr);
+        }
+      }
+      return { success: true };
+    }, ctx);
+
+    if (!trans_success) {
+      ctx.throw('操作失败，请重试');
+    }
+
+    if (like_state === 1 && like_state_ori !== like_state) {
+      // 添加通知
+      this.setLikePostNotice(user_id, like_id, reqData.content_id, receive_user_id, content_type, desc);
+    }
+
+    return true;
+  }
+
+  async setLikePostNotice(user_id, rel_id, content_id, receive_user_id, content_type, desc) {
+    // 系统通知(1)内容参与记录(2)内容评论记录(3)点赞(4)
+    const userInfo = await this.ctx.service.member.info.getInfo(user_id);
+    const noticedata = {
+      type_id: 4,
+      receive_user_id,
+      start_user_id: user_id,
+      rel_id,
+      content_id,
+      content_type,
+      title: userInfo.nickname + '点赞了你的' + this.app.config.contentType[content_type].name,
+      desc,
+    };
+    await this.ctx.service.common.noticeRecordAdd(noticedata);
+  }
 
   async getList(user_id, reqData) {
     // [1,2,3,4,5,6]

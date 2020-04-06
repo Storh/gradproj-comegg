@@ -50,6 +50,34 @@ class CommonService extends Service {
     const resultlist = JSON.parse(JSON.stringify(resultstr));
     return resultlist;
   }
+
+  async noticeRecordAdd(options) {
+    const date_now = this.ctx.service.base.fromatDate(new Date().getTime());
+    // const data = {
+    //   type_id: options.type_id,
+    //   receive_user_id: options.receive_user_id,
+    //   title: options.title,
+    //   desc: options.desc ? options.desc : '',
+    //   add_time: date_now,
+    // };
+    // if (options.start_user_id) data.start_user_id = options.start_user_id;
+    // if (options.rel_id) data.rel_id = options.rel_id;
+    // if (options.content_id) data.content_id = options.content_id;
+    // if (options.regist_id) data.regist_id = options.regist_id;
+    // if (options.content_type) data.content_type = options.content_type;
+
+    const data = { ...options };
+    data.desc = options.desc ? options.desc : '';
+    data.desc = date_now;
+
+    const addNotice = await this.app.mysql.insert(this.app.config.dbprefix + 'notice_record', data);
+    if (addNotice) {
+      return true;
+    }
+    return false;
+
+  }
+
 }
 
 module.exports = CommonService;

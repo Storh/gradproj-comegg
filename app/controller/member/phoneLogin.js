@@ -23,6 +23,7 @@ class PhoneLoginController extends Controller {
     // const token = app.jwt.sign({ foo: 'bar' }, app.config.jwt.secret, { expiresIn: 10 });
     // this.ctx.throw('有猫饼', { data: { token }, myErrType: 255 });
     // this.ctx.throw('有猫饼', { data: { token } });
+
     const abody = await ctx.service.helper.getNameFirstCharter('W');
     ctx.body = {
       token,
