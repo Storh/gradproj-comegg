@@ -241,7 +241,7 @@ class MainService extends Service {
     photoList.forEach(element => {
       images.push({
         id: element.file_id,
-        src: element.src,
+        src: this.app.config.publicAdd + element.src,
       });
     });
     return images;
