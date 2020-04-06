@@ -43,16 +43,12 @@ class MainController extends Controller {
     const { ctx } = this;
     const user_id = ctx.state.user.user_id;
     const reqData = ctx.request.body;
-    if (!reqData.content_id) {
-      this.ctx.throw('动态ID不能为空');
-    }
+    if (!reqData.content_id) { this.ctx.throw('动态ID不能为空'); }
 
     const content_id = Number(reqData.content_id);
     await ctx.service.common.visitRecordAdd(user_id, content_id);
     const data = await ctx.service.content.main.getDetailById(user_id, content_id);
-    if (!data) {
-      this.ctx.throw('该动态内容不存在');
-    }
+    if (!data) { this.ctx.throw('该动态内容不存在'); }
 
     const images = await ctx.service.content.main.getPhotos(content_id);
     console.log(data);
@@ -78,7 +74,7 @@ class MainController extends Controller {
     const results = await ctx.service.content.main.setLike(user_id, reqData);
     if (results) {
       ctx.body = {
-        data: { },
+        data: {},
       };
     }
 
