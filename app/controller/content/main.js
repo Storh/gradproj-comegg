@@ -11,15 +11,9 @@ class MainController extends Controller {
     if (!reqData.event_type) {
       this.ctx.throw('页面类型不能为空');
     }
-    // if (!Number.isInteger(reqData.event_type)) {
-    //   this.ctx.throw('无效页面类型');
-    // }
     if (!reqData.district_type) {
       this.ctx.throw('社区筛选类型不能为空');
     }
-    // if (!Number.isInteger(reqData.district_type)) {
-    //   this.ctx.throw('无效社区筛选类型');
-    // }
 
     const resultsrow = await ctx.service.content.main.getList(user_id, reqData);
     const list = [];
@@ -77,15 +71,9 @@ class MainController extends Controller {
     if (!reqData.content_id) {
       this.ctx.throw('动态ID不能为空');
     }
-    // if (!Number.isInteger(reqData.content_id)) {
-    //   this.ctx.throw('无效动态ID');
-    // }
     if (!reqData.like_state) {
       this.ctx.throw('点赞状态不能为空');
     }
-    // if (!Number.isInteger(reqData.like_state)) {
-    //   this.ctx.throw('无效点赞状态');
-    // }
 
     const results = await ctx.service.content.main.setLike(user_id, reqData);
     if (results) {
