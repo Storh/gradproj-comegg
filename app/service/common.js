@@ -100,10 +100,11 @@ class CommonService extends Service {
         + 'SET visit_num = visit_num + 1'
         + 'WHERE content_id = ' + content_id;
         await sqlvisit.query(sqlstr);
+        return true;
       }
-      return { success: true };
+      return false;
     }, ctx);
-    return !!visit_success;
+    return visit_success;
   }
 
 }
