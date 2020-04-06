@@ -103,9 +103,7 @@ class CommonService extends Service {
       }
       return { success: true };
     }, ctx);
-    if (!visit_success) {
-      ctx.throw('该动态内容不存在');
-    }
+    return !!visit_success;
   }
 
 }
