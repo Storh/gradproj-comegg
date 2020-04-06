@@ -23,11 +23,22 @@ class PhoneLoginController extends Controller {
     // const token = app.jwt.sign({ foo: 'bar' }, app.config.jwt.secret, { expiresIn: 10 });
     // this.ctx.throw('有猫饼', { data: { token }, myErrType: 255 });
     // this.ctx.throw('有猫饼', { data: { token } });
+    const result = await this.app.mysql.get(this.app.config.dbprefix + 'user_profile', { user_id: 369, state: 1 });
+    const resultarr = [ result ];
+    const resultmap = resultarr.map(item => {
+      if (item.add_time) {
+        item.add_time = new Date(item.add_time).toLocaleString();
+      }
+      return item;
+    });
 
+    // console.log(result);
     const abody = await ctx.service.helper.getNameFirstCharter('W');
     ctx.body = {
       token,
       abody,
+      result,
+      resultmap,
     };
   }
 }
