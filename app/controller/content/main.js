@@ -29,7 +29,7 @@ class MainController extends Controller {
         element.image = '';
       }
       if (element.like_num > 99) { element.like_num = '99+'; }
-      if (element.headimgurl.length < 20) { element.headimgurl = this.app.config.publicAdd + element.headimgurl; }
+      if (element.headimgurl.length < 100) { element.headimgurl = this.app.config.publicAdd + element.headimgurl; }
       list.push(element);
     });
 

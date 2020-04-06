@@ -226,7 +226,7 @@ class MainService extends Service {
     const results = await this.app.mysql.query(sqlstr);
 
     const data = JSON.parse(JSON.stringify(results[0]));
-    if (data.headimgurl.length < 20) { data.headimgurl = this.app.config.publicAdd + data.headimgurl; }
+    if (data.headimgurl.length < 100) { data.headimgurl = this.app.config.publicAdd + data.headimgurl; }
     return data;
   }
 

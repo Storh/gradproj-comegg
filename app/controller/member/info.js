@@ -32,7 +32,7 @@ class InfoController extends Controller {
 
     // 基础数据
     const userInfo = await ctx.service.member.info.getInfo(user_id);
-    if (userInfo.headimgurl.length < 20) { userInfo.headimgurl = this.app.config.publicAdd + userInfo.headimgurl; }
+    if (userInfo.headimgurl.length < 100) { userInfo.headimgurl = this.app.config.publicAdd + userInfo.headimgurl; }
     // 地址信息
     // console.log(userInfo);
     const estaterow = await ctx.service.common.getDistById(userInfo.district_id);
