@@ -3,6 +3,7 @@
 const Service = require('egg').Service;
 
 class CommonService extends Service {
+  // 获取地区列表
   async getListByType(type) {
     const { app } = this;
     // 'dist'行政区(1),'street'街道(2),'estate'小区(3)
@@ -35,10 +36,14 @@ class CommonService extends Service {
     });
     return list;
   }
+
+  //   根据id获取某条小区数据
   async getDistById(district_id) {
     const result = await this.app.mysql.get(this.app.config.dbprefix + 'district', { district_id });
     return JSON.parse(JSON.stringify(result));
   }
+
+  //   获取用户的爱好或者特长列表
   async getUserSpecHobyById(user_id, type) {
     let type_id;
     if (type === 'speciality') { type_id = 1; }
@@ -51,6 +56,7 @@ class CommonService extends Service {
     return resultlist;
   }
 
+  // 添加通知
   async noticeRecordAdd(options) {
     const date_now = this.ctx.service.base.fromatDate(new Date().getTime());
     // const data = {
@@ -65,7 +71,6 @@ class CommonService extends Service {
     // if (options.content_id) data.content_id = options.content_id;
     // if (options.regist_id) data.regist_id = options.regist_id;
     // if (options.content_type) data.content_type = options.content_type;
-
     const data = { ...options };
     data.desc = options.desc ? options.desc : '';
     data.add_time = date_now;
@@ -75,7 +80,32 @@ class CommonService extends Service {
       return true;
     }
     return false;
+  }
 
+  //   观看数记录
+  async visitRecordAdd(user_id, content_id) {
+    const { ctx, app } = this;
+
+    const date_now = ctx.service.base.fromatDate(new Date().getTime());
+
+    const visit_success = await app.mysql.beginTransactionScope(async sqlvisit => {
+      // don't commit or rollback by yourself
+      const visit_log = await sqlvisit.insert(this.app.config.dbprefix + 'visit_record', {
+        user_id,
+        rel_id: content_id,
+        add_time: date_now,
+      });
+      if (visit_log) {
+        const sqlstr = 'UPDATE ' + app.config.dbprefix + 'content_record '
+        + 'SET visit_num = visit_num + 1'
+        + 'WHERE content_id = ' + content_id;
+        await sqlvisit.query(sqlstr);
+      }
+      return { success: true };
+    }, ctx);
+    if (!visit_success) {
+      ctx.throw('该动态内容不存在');
+    }
   }
 
 }
