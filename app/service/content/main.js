@@ -22,11 +22,11 @@ class MainService extends Service {
     // 自动事务
     let like_state_ori;
     let like_id;
-    const trans_success = await app.mysql.beginTransactionScope(async conn => {
+    const trans_success = await app.mysql.beginTransactionScope(async sqlsetlike => {
       // 读取点赞记录
       //   动态内容(1); 用户参与(2);评论(3)
       const type = 1;
-      const is_setlike_log = await conn.get(this.app.config.dbprefix + 'like_record', {
+      const is_setlike_log = await sqlsetlike.get(this.app.config.dbprefix + 'like_record', {
         type_id: type,
         user_id,
         rel_id: reqData.content_id,
@@ -37,7 +37,7 @@ class MainService extends Service {
           ctx.throw('您还未点赞');
         } else {
           like_state_ori = -1;
-          const set_like_log = await conn.insert(app.config.dbprefix + 'like_record', {
+          const set_like_log = await sqlsetlike.insert(app.config.dbprefix + 'like_record', {
             type_id: type,
             user_id,
             rel_id: reqData.content_id,
@@ -56,7 +56,7 @@ class MainService extends Service {
         const setlike_log = JSON.parse(JSON.stringify(is_setlike_log));
         like_id = setlike_log.like_id;
         like_state_ori = setlike_log.like_state;
-        await conn.update(app.config.dbprefix + 'like_record',
+        await sqlsetlike.update(app.config.dbprefix + 'like_record',
           {
             like_state,
             modify_time: date_now,
@@ -73,7 +73,7 @@ class MainService extends Service {
           const sqlstr = 'UPDATE ' + app.config.dbprefix + 'content_record '
                         + 'SET like_num = like_num + (' + like_num_offset + ') '
                         + 'WHERE content_id = ' + reqData.content_id;
-          await conn.query(sqlstr);
+          await sqlsetlike.query(sqlstr);
         }
       }
       return { success: true };
