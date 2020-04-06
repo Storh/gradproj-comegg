@@ -28,13 +28,13 @@ class InfoController extends Controller {
   async getInfo() {
     const { ctx } = this;
     const user_id = ctx.request.body.user_id;// 获取post数据
-    console.log(ctx.request.body);
+    // console.log(ctx.request.body);
 
     // 基础数据
     const userInfo = await ctx.service.member.info.getInfo(user_id);
     if (userInfo.headimgurl.length < 20) { userInfo.headimgurl = this.app.config.publicAdd + userInfo.headimgurl; }
     // 地址信息
-    console.log(userInfo);
+    // console.log(userInfo);
     const estaterow = await ctx.service.common.getDistById(userInfo.district_id);
     const streetrow = await ctx.service.common.getDistById(estaterow.parent_id);
     userInfo.districts = {

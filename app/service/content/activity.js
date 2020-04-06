@@ -25,9 +25,7 @@ class ActivityService extends Service {
     const list = [];
     results.forEach(element => {
       if (element.headimgurl.length < 20) { element.headimgurl = this.app.config.publicAdd + element.headimgurl; }
-      list.push({
-        element,
-      });
+      list.push(element);
     });
     return list;
   }
