@@ -240,14 +240,15 @@ class MainService extends Service {
 
     + 'if((SELECT like_state FROM ' + this.app.config.dbprefix + 'like_record WHERE type_id = ' + likeType
     + ' AND rel_id = a.content_id AND user_id = ' + user_id + ') = 1, 1, 0) AS like_state,'
-    + 'if((SELECT collect_state FROM ' + this.app.config.dbprefix + 'collect_record WHERE rel_id = a.content_id AND user_id = ' + user_id + ') = 1, 1, 0) AS collect_state'
+    + 'if((SELECT collect_state FROM ' + this.app.config.dbprefix
+    + 'collect_record WHERE rel_id = a.content_id AND user_id = ' + user_id + ') = 1, 1, 0) AS collect_state'
 
-    + 'FROM ' + this.app.config.dbprefix + 'content_record a'
-    + 'INNER JOIN ' + this.app.config.dbprefix + 'user_profile b ON b.user_id = a.user_id'
+    + ' FROM ' + this.app.config.dbprefix + 'content_record a '
+    + 'INNER JOIN ' + this.app.config.dbprefix + 'user_profile b ON b.user_id = a.user_id '
 
     + 'WHERE a.content_id = ' + content_id
-    + 'AND a.is_delete = 0'
-    + 'AND a.state = 1';
+    + ' AND a.is_delete = 0 '
+    + 'AND a.state = 1 ';
     const results = await this.app.mysql.query(sqlstr);
     return JSON.parse(JSON.stringify(results));
   }
