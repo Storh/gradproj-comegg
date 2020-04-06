@@ -39,6 +39,7 @@ class MainController extends Controller {
 
   }
 
+  // 获取动态详情
   async getDetailById() {
     const { ctx } = this;
     const user_id = ctx.state.user.user_id;
@@ -51,8 +52,6 @@ class MainController extends Controller {
     if (!data) { this.ctx.throw('该动态内容不存在'); }
 
     const images = await ctx.service.content.main.getPhotos(content_id);
-    console.log(data);
-    console.log(images);
     data.images = images;
     ctx.body = {
       data,
