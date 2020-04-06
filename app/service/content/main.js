@@ -206,37 +206,6 @@ class MainService extends Service {
     return str;
   }
 
-  //   分页控制
-  async getPageStyle(pageData) {
-    const def_per_page = 30;// 默认每页条数
-    // const def_page_top_row = 5;// 默认最多显示多少行数
-    if (!pageData.page) {
-      //   if (!page_default_num) {
-      return {
-        // 'type' => Base_data::PAGE_TYPE_ALL,
-        limit: '',
-      };
-      //   }
-      //   const num = page_default_num === -1 ? def_page_top_row : page_default_num;
-      //   return {
-      //     // 'type' => Base_data::PAGE_TYPE_DEFAULT_NUM,
-      //     num,
-      //     limit: 'LIMIT ' + num,
-      //   };
-    }
-    const per_page = !pageData.page_num ? def_per_page : pageData.page_num;
-
-    const offset = per_page * (pageData.page - 1);
-    const page = pageData.page;
-    return {
-      // 'type' => Base_data::PAGE_TYPE_PAGING,
-      page,
-      per_page,
-      offset,
-      limit: 'LIMIT ' + offset + ', ' + per_page,
-    };
-  }
-
   // 获取动态内容
   async getDetailById(user_id, content_id) {
     // 动态内容(1)用户参与(2)评论(3)
