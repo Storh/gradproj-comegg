@@ -68,7 +68,7 @@ class CommonService extends Service {
 
     const data = { ...options };
     data.desc = options.desc ? options.desc : '';
-    data.desc = date_now;
+    data.add_time = date_now;
 
     const addNotice = await this.app.mysql.insert(this.app.config.dbprefix + 'notice_record', data);
     if (addNotice) {

@@ -101,7 +101,7 @@ class MainService extends Service {
       rel_id,
       content_id,
       content_type,
-      title: userInfo.nickname + '点赞了你的' + this.app.config.contentType[content_type].name,
+      title: userInfo.nickname + '点赞了你的' + this.app.config.contentType[content_type - 1].name,
       desc,
     };
     await this.ctx.service.common.noticeRecordAdd(noticedata);
