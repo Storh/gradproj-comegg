@@ -3,6 +3,8 @@
 const Service = require('egg').Service;
 
 class MainService extends Service {
+
+  // 喜欢或不喜欢
   async setLike(user_id, reqData) {
     const like_state = Number(reqData.like_state);
     // 获取动态内容
@@ -91,6 +93,7 @@ class MainService extends Service {
     return true;
   }
 
+  //   点赞后发送系统通知
   async setLikePostNotice(user_id, rel_id, content_id, receive_user_id, content_type, desc) {
     // 系统通知(1)内容参与记录(2)内容评论记录(3)点赞(4)
     const userInfo = await this.ctx.service.member.info.getInfo(user_id);
@@ -107,6 +110,7 @@ class MainService extends Service {
     await this.ctx.service.common.noticeRecordAdd(noticedata);
   }
 
+  //   获取首页列表
   async getList(user_id, reqData) {
     // [1,2,3,4,5,6]
     // ['互助','问答','乐享','活动','团购','话题']
@@ -155,6 +159,8 @@ class MainService extends Service {
     const list = await this.duSearchList(user_id, photoType, likeType, sql_event_type, sql_district_type, sql_search_key, limit);
     return list;
   }
+
+  //   进行首页列表实际内容的检索
   async duSearchList(user_id, photoType, likeType, sql_event_type, sql_district_type, sql_search_key, limit) {
     const sqlstr = ' SELECT t.content_id,t.type_id,t.title,t.image,t.content,t.visit_num,t.like_num,t.user_id,t.nickname,t.headimgurl, '
             + ' if(t.like_state = 1,1,0) AS like_state '
@@ -190,6 +196,7 @@ class MainService extends Service {
     str.replace(/_/g, '/_');
     return str;
   }
+
   //   分页控制
   async getPageStyle(pageData) {
     const def_per_page = 30;// 默认每页条数
@@ -220,6 +227,8 @@ class MainService extends Service {
       limit: 'LIMIT ' + offset + ', ' + per_page,
     };
   }
+
+
 }
 
 module.exports = MainService;
