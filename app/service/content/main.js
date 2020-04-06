@@ -148,8 +148,8 @@ class MainService extends Service {
     } else {
       sql_search_key = '';
     }
-    const limitrow = await this.getPageStyle(reqData);
 
+    const limitrow = await this.ctx.service.common.getPageStyle(reqData);
     const limit = limitrow.limit;
 
     const likeType = 1;// 动态内容
