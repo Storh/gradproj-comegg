@@ -61,7 +61,41 @@ module.exports = appInfo => {
     // 采用app.config.XX访问
     dbprefix: 'al_', // 数据库表前缀
     serviceUrl: 'http://127.0.0.1:7001', // 服务器地址
-    publicAdd: 'http://127.0.0.1:7001/public', // 静态资源地址
+    publicAdd: 'http://127.0.0.1:7001/public/', // 静态资源地址
+    contentTypeIdByName: {
+      HELP: 1,
+      QUESTION: 2,
+      UNUSED: 3,
+      ACTIVITY: 4,
+      PACK: 5,
+      TOPIC: 6,
+    },
+    contentType: [
+      {
+        name: '互助',
+        id: 1,
+      },
+      {
+        name: '问答',
+        id: 2,
+      },
+      {
+        name: '共享',
+        id: 3,
+      },
+      {
+        name: '活动',
+        id: 4,
+      },
+      {
+        name: '团购',
+        id: 5,
+      },
+      {
+        name: '话题',
+        id: 6,
+      },
+    ],
     // myAppName: 'egg',
   };
 

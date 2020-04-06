@@ -14,9 +14,6 @@ class InfoController extends Controller {
     if (!reqData.district_id) {
       this.ctx.throw('所在小区ID不能为空');
     }
-    if (Number.isInteger(reqData.district_id)) {
-      this.ctx.throw('无效小区ID');
-    }
 
     const updateSuccess = await ctx.service.member.info.reg(user_id, reqData);
     if (updateSuccess) {
@@ -31,15 +28,15 @@ class InfoController extends Controller {
   async getInfo() {
     const { ctx } = this;
     const user_id = ctx.request.body.user_id;// 获取post数据
-    if (Number.isInteger(user_id)) {
-      this.ctx.throw('无效用户ID');
-    }
+    // console.log(ctx.request.body);
+
     // 基础数据
     const userInfo = await ctx.service.member.info.getInfo(user_id);
-    if (userInfo.headimgurl.length < 20) { userInfo.headimgurl = this.app.config.publicAdd + userInfo.headimgurl; }
+    if (userInfo.headimgurl.length < 100) { userInfo.headimgurl = this.app.config.publicAdd + userInfo.headimgurl; }
     // 地址信息
-    const estaterow = await ctx.service.common.district.getDistById(userInfo.district_id);
-    const streetrow = await ctx.service.common.district.getDistById(estaterow.parent_id);
+    // console.log(userInfo);
+    const estaterow = await ctx.service.common.getDistById(userInfo.district_id);
+    const streetrow = await ctx.service.common.getDistById(estaterow.parent_id);
     userInfo.districts = {
       estate: {
         id: estaterow.district_id,
@@ -51,9 +48,9 @@ class InfoController extends Controller {
       },
     };
     // 职业特长
-    userInfo.speciality = await ctx.service.common.sphob.getUserSpecHobyById(user_id, 'speciality');
+    userInfo.speciality = await ctx.service.common.getUserSpecHobyById(user_id, 'speciality');
     // 业余爱好
-    userInfo.hobby = await ctx.service.common.sphob.getUserSpecHobyById(user_id, 'hobby');
+    userInfo.hobby = await ctx.service.common.getUserSpecHobyById(user_id, 'hobby');
     ctx.body = {
       data: userInfo,
     };

@@ -21,8 +21,8 @@ class LoginService extends Service {
         } else {
           const user_id = user_login.user_id;
           const need_info = user_login.district_id ? 0 : 1;
-          const nickname = user_login.user_id;
-          const headimgurl = user_login.user_id;
+          const nickname = user_login.nickname;
+          const headimgurl = user_login.headimgurl;
           const token = app.jwt.sign({ user_id }, app.config.jwt.secret, { expiresIn: '3 days' });
           const last_login_time = date_now;
           await this.app.mysql.update(app.config.dbprefix + 'user_profile', { last_login_time }, {
@@ -45,10 +45,10 @@ class LoginService extends Service {
     } else {
       // 注册行为
       // 生成默认头像
-      const headimgurl = '/defhead/' + parseInt(Math.random() * (29), 10) + '.png';
+      const headimgurl = 'defhead/' + parseInt(Math.random() * (29), 10) + '.png';
       // 默认昵称为手机号
       const nickname = phone_passw.phone;
-      const name_first_letter = this.getNameFirstCharter(nickname);
+      const name_first_letter = await this.getNameFirstCharter(nickname);
       const login_user = await this.app.mysql.insert(app.config.dbprefix + 'user_profile', {
         phone: phone_passw.phone,
         password: phone_passw.passWord,
