@@ -228,7 +228,24 @@ class MainService extends Service {
     };
   }
 
-
+  //   获取动态的图片列表
+  async getPhotos(content_id) {
+    // 用户头像(1)动态内容图片(2)
+    const type_id = 2;
+    const photoListRow = await this.app.mysql.select(this.app.config.dbprefix + 'upload_file_record', {
+      where: { type_id, rel_id: content_id },
+      columns: [ 'file_id', 'src' ],
+    });
+    const photoList = JSON.parse(JSON.stringify(photoListRow));
+    const images = [];
+    photoList.forEach(element => {
+      images.push({
+        id: element.file_id,
+        src: element.src,
+      });
+    });
+    return images;
+  }
 }
 
 module.exports = MainService;
