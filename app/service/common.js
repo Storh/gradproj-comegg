@@ -97,7 +97,7 @@ class CommonService extends Service {
       });
       if (visit_log) {
         const sqlstr = 'UPDATE ' + app.config.dbprefix + 'content_record '
-        + 'SET visit_num = visit_num + 1'
+        + 'SET visit_num = visit_num + 1 '
         + 'WHERE content_id = ' + content_id;
         await sqlvisit.query(sqlstr);
         return true;

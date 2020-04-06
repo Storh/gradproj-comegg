@@ -12,6 +12,8 @@ module.exports = app => {
   router.post('/member/info/reg', app.jwt, controller.member.info.reg);// 1.1.6、 注册后完善用户信息
 
   router.post('/content/main/getList', app.jwt, controller.content.main.getList);// 1.2.1、 获取动态记录列表
+  router.post('/content/main/getDetailById', app.jwt, controller.content.main.getDetailById);// 1.2.2、 获取动态记录详情
+
   router.post('/content/main/setLike', app.jwt, controller.content.main.setLike);// 1.2.38、 为动态点赞
 
 
