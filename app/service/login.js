@@ -48,7 +48,7 @@ class LoginService extends Service {
       const headimgurl = 'defhead/' + parseInt(Math.random() * (29), 10) + '.png';
       // 默认昵称为手机号
       const nickname = phone_passw.phone;
-      const name_first_letter = this.getNameFirstCharter(nickname);
+      const name_first_letter = await this.getNameFirstCharter(nickname);
       const login_user = await this.app.mysql.insert(app.config.dbprefix + 'user_profile', {
         phone: phone_passw.phone,
         password: phone_passw.passWord,

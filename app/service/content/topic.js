@@ -33,7 +33,7 @@ class TopicService extends Service {
       list.push(element);
     });
     console.log(resultstr);
-    return list;
+    return resultstr;
   }
 }
 

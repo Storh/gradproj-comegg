@@ -6,8 +6,8 @@ class InfoService extends Service {
   async reg(user_id, reqData) {
     const { ctx, app } = this;
 
-    const name_first_letter = ctx.service.login.getNameFirstCharter(reqData.nickname);
-    const info_last_modify_time = ctx.service.base.fromatDate(new Date().getTime());
+    const name_first_letter = await ctx.service.login.getNameFirstCharter(reqData.nickname);
+    const info_last_modify_time = await ctx.service.base.fromatDate(new Date().getTime());
     const upDataInfo = {
       nickname: reqData.nickname,
       district_id: reqData.district_id,
