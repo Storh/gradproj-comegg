@@ -30,9 +30,10 @@ class TopicService extends Service {
     const list = [];
     results.forEach(element => {
       if (element.headimgurl.length < 20) { element.headimgurl = this.app.config.publicAdd + element.headimgurl; }
+      if (element.add_time) { element.add_time = new Date(element.add_time).toLocaleString(); }
+      if (element.reply_time) { element.reply_time = new Date(element.reply_time).toLocaleString(); }
       list.push(element);
     });
-    console.log(resultstr);
     return resultstr;
   }
 }
