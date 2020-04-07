@@ -10,7 +10,7 @@ class ReviewService extends Service {
     //  用户的点赞类型 动态内容(1)'SET_LIKE_CONTENT'; 用户参与(2)'SET_LIKE_REGIST';评论(3)'SET_LIKE_REVIEW'
     const likeType = 3;
 
-    const sqlstr = `ELECT
+    const sqlstr = `SELECT
     a.review_id,a.user_id,a.review_text,a.reply_text,a.add_time,a.reply_time,a.like_num,
     b.nickname,b.headimgurl,
     if((SELECT like_state FROM ${this.app.config.dbprefix}like_record WHERE type_id = ${likeType} AND rel_id = a.review_id AND user_id = ${user_id}) = 1, 1, 0) AS like_state
