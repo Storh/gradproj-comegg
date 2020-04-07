@@ -19,6 +19,8 @@ module.exports = app => {
   router.post('/content/activity/getListById', app.jwt, controller.content.activity.getListById);// 1.2.7、 获取活动参与详情列表
   router.post('/content/pack/getListById', app.jwt, controller.content.pack.getListById);// 1.2.8、 获取拼团参与详情列表
   router.post('/content/topic/getListById', app.jwt, controller.content.topic.getListById);// 1.2.9、 获取话题参与详情列表
+  router.post('/content/review/getListById', app.jwt, controller.content.review.getListById);// 1.2.15、 获取动态记录评论列表
+
 
   router.post('/content/main/setLike', app.jwt, controller.content.main.setLike);// 1.2.38、 为动态点赞
 
