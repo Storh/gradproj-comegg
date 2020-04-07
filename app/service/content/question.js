@@ -34,6 +34,22 @@ class QuestionService extends Service {
     });
     return list;
   }
+
+  async registAdd(user_id, reqData) {
+    const date_now = this.ctx.service.base.fromatDate(new Date().getTime());
+    const regist_log = await this.app.mysql.insert(this.app.config.dbprefix + 'question_regist', {
+      user_id,
+      content_id: reqData.content_id,
+      add_text: reqData.add_text,
+      add_time: date_now,
+    });
+    if (regist_log) {
+      // 通知
+      this.ctx.service.content.help.registAddPostNotice(user_id, reqData.content_id, regist_log.insertId, reqData.add_text);
+      return regist_log.insertId;
+    }
+    this.ctx.throw('提交失败');
+  }
 }
 
 module.exports = QuestionService;

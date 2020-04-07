@@ -27,6 +27,9 @@ module.exports = app => {
   router.post('/content/help/registAdd', app.jwt, controller.content.help.registAdd);// 1.2.26、 会员参与互助接口
 
 
+  router.post('/content/question/registAdd', app.jwt, controller.content.question.registAdd);// 1.2.30、 会员参与问答接口
+
+
   router.post('/content/main/setLike', app.jwt, controller.content.main.setLike);// 1.2.44、 为动态点赞
 
 
