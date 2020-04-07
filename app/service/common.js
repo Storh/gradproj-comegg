@@ -138,6 +138,12 @@ class CommonService extends Service {
     };
   }
 
+  // 通过id获得动态内容详情
+  async getContentInfoById(content_id) {
+    const result = await this.app.mysql.get(this.app.config.dbprefix + 'content_record', { content_id, is_delete: 0, state: 1 });
+    return JSON.parse(JSON.stringify(result));
+  }
+
 }
 
 module.exports = CommonService;
