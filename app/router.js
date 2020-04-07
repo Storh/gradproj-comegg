@@ -23,6 +23,7 @@ module.exports = app => {
   router.post('/content/topic/getListById', app.jwt, controller.content.topic.getListById);// 1.2.13、 获取话题参与详情列表
 
   router.post('/content/review/getListById', app.jwt, controller.content.review.getListById);// 1.2.21、 获取动态记录评论列表
+  router.post('/content/review/add', app.jwt, controller.content.review.add);// 1.2.22、 为动态添加评论接口
 
   router.post('/content/help/registAdd', app.jwt, controller.content.help.registAdd);// 1.2.26、 会员参与互助接口
 
