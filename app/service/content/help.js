@@ -43,10 +43,12 @@ class HelpService extends Service {
       add_text: reqData.add_text,
       add_time: date_now,
     });
-    // 通知
-    this.registAddPostNotice(user_id, reqData.content_id, regist_log.insertId, reqData.add_text);
-
-    return regist_log.insertId;
+    if (regist_log) {
+      // 通知
+      this.registAddPostNotice(user_id, reqData.content_id, regist_log.insertId, reqData.add_text);
+      return regist_log.insertId;
+    }
+    this.ctx.throw('提交失败');
   }
 
   async registAddPostNotice(user_id, content_id, regist_id, add_text) {
