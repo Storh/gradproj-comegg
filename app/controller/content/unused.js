@@ -15,6 +15,18 @@ class UnusedController extends Controller {
       data: { list },
     };
   }
+  // 参与闲置
+  async registAdd() {
+    const { ctx } = this;
+    const user_id = ctx.state.user.user_id;
+    const reqData = ctx.request.body;
+    if (!reqData.content_id) { this.ctx.throw('动态ID不能为空'); }
+    if (!reqData.add_text) { this.ctx.throw('参与内容不能为空'); }
+    const regist_id = await ctx.service.content.unused.registAdd(user_id, reqData);
+    ctx.body = {
+      data: { regist_id },
+    };
+  }
 }
 
 module.exports = UnusedController;

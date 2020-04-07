@@ -30,6 +30,9 @@ module.exports = app => {
   router.post('/content/question/registAdd', app.jwt, controller.content.question.registAdd);// 1.2.30、 会员参与问答接口
 
 
+  router.post('/content/unused/registAdd', app.jwt, controller.content.unused.registAdd);// 1.2.34、 会员参与闲置接口
+
+
   router.post('/content/main/setLike', app.jwt, controller.content.main.setLike);// 1.2.44、 为动态点赞
 
 
