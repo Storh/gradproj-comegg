@@ -33,6 +33,41 @@ class ReviewService extends Service {
     });
     return list;
   }
+
+  async add(user_id, reqData) {
+    const date_now = this.ctx.service.base.fromatDate(new Date().getTime());
+    const review_log = await this.app.mysql.insert(this.app.config.dbprefix + 'review_record', {
+      user_id,
+      content_id: reqData.content_id,
+      review_text: reqData.review_text,
+      add_time: date_now,
+    });
+    if (review_log) {
+      // 通知
+      this.addPostNotice(user_id, reqData.content_id, review_log.insertId, reqData.review_text);
+      return review_log.insertId;
+    }
+    this.ctx.throw('提交失败');
+  }
+
+  async addPostNotice(user_id, content_id, review_id, review_text) {
+    // SYSTEM系统通知(1);CONTENT_REGIST内容参与记录(2);CONTENT_REVIEW内容评论记录(3);TYPE_LIKE点赞(4);
+    const userInfo = await this.ctx.service.member.info.getInfo(user_id);
+    const contentInfo = await this.ctx.service.common.getContentInfoById(content_id);
+
+    const noticedata = {
+      type_id: 3,
+      receive_user_id: contentInfo.user_id,
+      start_user_id: user_id,
+      rel_id: review_id,
+      content_id,
+      regist_id: review_id,
+      title: userInfo.nickname + '评论了你的' + this.app.config.contentType[contentInfo.type_id - 1].name,
+      desc: review_text,
+    };
+    await this.ctx.service.common.noticeRecordAdd(noticedata);
+  }
+
 }
 
 module.exports = ReviewService;
