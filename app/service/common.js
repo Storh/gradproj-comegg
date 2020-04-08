@@ -1,7 +1,10 @@
 'use strict';
 
 const Service = require('egg').Service;
-
+const formatNumber = n => {
+  n = n.toString();
+  return n[1] ? n : '0' + n;
+};
 class CommonService extends Service {
   // 获取地区列表
   async getListByType(type) {
@@ -142,6 +145,33 @@ class CommonService extends Service {
   async getContentInfoById(content_id) {
     const result = await this.app.mysql.get(this.app.config.dbprefix + 'content_record', { content_id, is_delete: 0, state: 1 });
     return JSON.parse(JSON.stringify(result));
+  }
+
+  async getOrderNoById(order_id) {
+    // 订单号order_id的随机数组
+    const arr = [ 3, 5, 8, 1, 9, 7, 0, 4, 2, 6 ];
+    // 订单号order_id的随机数组位数
+    const arrLen = 3;
+
+    let orderIdStr = '000' + order_id;
+    orderIdStr = orderIdStr.substr(-arrLen);
+
+    const orderIdArr = orderIdStr.split(',');
+    const orderArr = orderIdArr.map(v => { return arr[v]; });
+    const order = orderArr.toString();
+    const rand = Math.floor(Math.random() * (999 - 111 + 1) + 111).toString();
+
+    const date = new Date().getTime();
+    const formatArr = [
+      date.getFullYear().toString(),
+      (date.getMonth() + 1).toString(),
+      date.getDate().toString(),
+      date.getHours().toString(),
+      date.getMinutes().toString(),
+      date.getSeconds().toString(),
+    ];
+    const order_no = formatArr.map(formatNumber) + rand + order;
+    return order_no;
   }
 
 }

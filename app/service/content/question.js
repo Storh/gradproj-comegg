@@ -50,6 +50,7 @@ class QuestionService extends Service {
     }
     this.ctx.throw('提交失败');
   }
+
 }
 
 module.exports = QuestionService;

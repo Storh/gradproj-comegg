@@ -59,6 +59,7 @@ class MainController extends Controller {
     };
   }
 
+  // 点赞动态
   async setLike() {
     const { ctx } = this;
     const user_id = ctx.state.user.user_id;
@@ -77,7 +78,27 @@ class MainController extends Controller {
         data: {},
       };
     }
+  }
 
+  // 收藏动态
+  async setCollect() {
+    const { ctx } = this;
+    const user_id = ctx.state.user.user_id;
+    const reqData = ctx.request.body;
+
+    if (!reqData.content_id) {
+      this.ctx.throw('动态ID不能为空');
+    }
+    if (!reqData.collect_state) {
+      this.ctx.throw('收藏状态不能为空');
+    }
+
+    const results = await ctx.service.content.main.setLike(user_id, reqData);
+    if (results) {
+      ctx.body = {
+        data: {},
+      };
+    }
   }
 }
 

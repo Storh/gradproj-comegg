@@ -29,6 +29,20 @@ class TopicController extends Controller {
     };
   }
 
+  // 参与话题回复
+  async registReply() {
+    const { ctx } = this;
+    const user_id = ctx.state.user.user_id;
+    const reqData = ctx.request.body;
+    if (!reqData.regist_id) { this.ctx.throw('动态ID不能为空'); }
+    if (!reqData.reply_text) { this.ctx.throw('参与内容不能为空'); }
+    const replySuccess = await ctx.service.content.help.registAdd(user_id, reqData, 'topic_regist');
+    if (replySuccess) {
+      ctx.body = {
+        data: {},
+      };
+    }
+  }
 }
 
 module.exports = TopicController;
