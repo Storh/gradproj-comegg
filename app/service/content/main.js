@@ -248,6 +248,80 @@ class MainService extends Service {
     });
     return images;
   }
+
+  async setCollect(user_id, reqData) {
+    const collect_state = Number(reqData.collect_state);
+    // 获取动态内容
+    const { ctx, app } = this;
+    const contentBaseInfoRow = await this.app.mysql.get(this.app.config.dbprefix + 'content_record', {
+      content_id: reqData.content_id,
+      state: 1,
+      is_delete: 0,
+    });
+
+    const contentBaseInfo = JSON.parse(JSON.stringify(contentBaseInfoRow));
+    const collect_num_ori = contentBaseInfo.collect_num;
+    const date_now = ctx.service.base.fromatDate(new Date().getTime());
+    // 自动事务
+    let collect_state_ori;
+    let collect_id;
+    const trans_success = await app.mysql.beginTransactionScope(async sqlsetColl => {
+      const is_setColl_log = await sqlsetColl.get(this.app.config.dbprefix + 'collect_record', {
+        user_id,
+        rel_id: reqData.content_id,
+      });
+      if (!is_setColl_log) {
+        // 未设置喜欢
+        if (collect_state === 0) {
+          ctx.throw('您还未收藏');
+        } else {
+          collect_state_ori = -1;
+          const set_coll_log = await sqlsetColl.insert(app.config.dbprefix + 'collect_record', {
+            user_id,
+            rel_id: reqData.content_id,
+            collect_state,
+            add_time: date_now,
+          });
+          if (set_coll_log) {
+            collect_id = set_coll_log.insertId;
+          } else {
+            ctx.throw('操作失败');
+          }
+        }
+      } else {
+        const setColl_log = JSON.parse(JSON.stringify(is_setColl_log));
+        collect_id = setColl_log.collect_id;
+        collect_state_ori = setColl_log.collect_state;
+        await sqlsetColl.update(app.config.dbprefix + 'collect_record',
+          {
+            collect_state,
+            modify_time: date_now,
+          },
+          { where: { collect_id } });
+      }
+      // 更新动态内容表
+      if (collect_state_ori !== collect_state) {
+        const collect_num_offset = collect_state === 1 ? 1 : -1;
+
+        if (collect_num_ori === 0 && collect_num_offset < 0) {
+          console.log('中奖了');
+        } else {
+          const sqlstr =
+          `UPDATE ${app.config.dbprefix}content_record
+          SET collect_num = collect_num + (${collect_num_offset})
+          WHERE content_id = ${reqData.content_id}`;
+          await sqlsetColl.query(sqlstr);
+        }
+      }
+      return true;
+    }, ctx);
+
+    if (!trans_success) {
+      ctx.throw('操作失败，请重试');
+    }
+    return true;
+  }
+
 }
 
 module.exports = MainService;

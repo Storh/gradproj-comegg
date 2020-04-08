@@ -41,9 +41,8 @@ module.exports = app => {
 
   router.post('/content/main/setLike', app.jwt, controller.content.main.setLike);// 1.2.44、 为动态点赞
   router.post('/content/regist/setLike', app.jwt, controller.content.regist.setLike);// 1.2.45、 为参与内容点赞
-
-
   router.post('/content/review/setLike', app.jwt, controller.content.review.setLike);// 1.2.46、 为评论点赞
+  router.post('/content/main/setCollect', app.jwt, controller.content.main.setCollect);// 1.2.47、 收藏动态
 
 
   router.post('/member/info/getInfo', app.jwt, controller.member.info.getInfo);// 1.5.1、 获取用户基本信息
