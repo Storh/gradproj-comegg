@@ -66,6 +66,21 @@ class ReviewController extends Controller {
       };
     }
   }
+
+  // 回复评论
+  async reply() {
+    const { ctx } = this;
+    const user_id = ctx.state.user.user_id;
+    const reqData = ctx.request.body;
+    if (!reqData.review_id) { this.ctx.throw('评论记录ID不能为空'); }
+    if (!reqData.reply_text) { this.ctx.throw('回复内容不能为空'); }
+    const replySuccess = await ctx.service.content.review.reply(user_id, reqData);
+    if (replySuccess) {
+      ctx.body = {
+        data: {},
+      };
+    }
+  }
 }
 
 module.exports = ReviewController;
