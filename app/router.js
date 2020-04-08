@@ -32,6 +32,7 @@ module.exports = app => {
 
 
   router.post('/content/question/registAdd', app.jwt, controller.content.question.registAdd);// 1.2.30、 会员参与问答接口
+  router.post('/content/question/registReply', app.jwt, controller.content.question.registReply);// 1.2.31、 会员参与问答回复接口
 
 
   router.post('/content/unused/registAdd', app.jwt, controller.content.unused.registAdd);// 1.2.34、 会员参与闲置接口

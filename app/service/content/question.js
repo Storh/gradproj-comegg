@@ -50,6 +50,47 @@ class QuestionService extends Service {
     }
     this.ctx.throw('提交失败');
   }
+
+  async registReply(user_id, reqData) {
+    const regist_id = reqData.regist_id;
+    const reply_text = reqData.reply_text;
+
+    // 获取参与人id
+    const replyBaseInfoRow = await this.app.mysql.get(this.app.config.dbprefix + 'question_regist', {
+      regist_id,
+      state: 1,
+      is_delete: 0,
+    });
+    const replyBaseInfo = JSON.parse(JSON.stringify(replyBaseInfoRow));
+    const content_id = replyBaseInfo.content_id;
+    const receive_user_id = replyBaseInfo.user_id;
+
+    // 获取动态内容类型
+    const contentBaseInfoRow = await this.app.mysql.get(this.app.config.dbprefix + 'content_record', {
+      content_id,
+      user_id,
+      state: 1,
+      is_delete: 0,
+    });
+    const contentBaseInfo = JSON.parse(JSON.stringify(contentBaseInfoRow));
+    const content_type = contentBaseInfo.type_id;
+
+    const date_now = this.ctx.service.base.fromatDate(new Date().getTime());
+
+    const replyinfo = await this.app.mysql.update(this.app.config.dbprefix + 'question_regist',
+      {
+        reply_text,
+        reply_time: date_now,
+      },
+      { where: { regist_id } });
+
+    if (replyinfo) {
+      // 通知
+      this.ctx.service.content.help.registReplyPostNotice(user_id, content_id, regist_id, receive_user_id, content_type, reply_text);
+      return replyinfo.insertId;
+    }
+    this.ctx.throw('提交失败');
+  }
 }
 
 module.exports = QuestionService;
