@@ -69,12 +69,12 @@ class HelpService extends Service {
     await this.ctx.service.common.noticeRecordAdd(noticedata);
   }
 
-  async registReply(user_id, reqData) {
+  async registReply(user_id, reqData, dbName) {
     const regist_id = reqData.regist_id;
     const reply_text = reqData.reply_text;
 
     // 获取参与人id
-    const replyBaseInfoRow = await this.app.mysql.get(this.app.config.dbprefix + 'help_regist', {
+    const replyBaseInfoRow = await this.app.mysql.get(this.app.config.dbprefix + dbName, {
       regist_id,
       state: 1,
       is_delete: 0,
@@ -95,7 +95,7 @@ class HelpService extends Service {
 
     const date_now = this.ctx.service.base.fromatDate(new Date().getTime());
 
-    const replyinfo = await this.app.mysql.update(this.app.config.dbprefix + 'help_regist',
+    const replyinfo = await this.app.mysql.update(this.app.config.dbprefix + dbName,
       {
         reply_text,
         reply_time: date_now,

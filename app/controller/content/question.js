@@ -36,7 +36,7 @@ class QuestionController extends Controller {
     const reqData = ctx.request.body;
     if (!reqData.regist_id) { this.ctx.throw('动态ID不能为空'); }
     if (!reqData.reply_tex) { this.ctx.throw('参与内容不能为空'); }
-    const replySuccess = await ctx.service.content.question.registAdd(user_id, reqData);
+    const replySuccess = await ctx.service.content.help.registAdd(user_id, reqData, 'question_regist');
     if (replySuccess) {
       ctx.body = {
         data: {},
