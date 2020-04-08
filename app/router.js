@@ -40,6 +40,7 @@ module.exports = app => {
 
 
   router.post('/content/topic/registAdd', app.jwt, controller.content.topic.registAdd);// 1.2.40、 会员参与话题接口
+  router.post('/content/topic/registReply', app.jwt, controller.content.topic.registReply);// 1.2.41、 会员参与话题回复接口
 
 
   router.post('/content/main/setLike', app.jwt, controller.content.main.setLike);// 1.2.44、 为动态点赞
