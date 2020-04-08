@@ -48,6 +48,24 @@ class ReviewController extends Controller {
       };
     }
   }
+
+  // 评论删除
+  async delete() {
+    const { ctx } = this;
+    const user_id = ctx.state.user.user_id;
+    const reqData = ctx.request.body;
+
+    if (!reqData.review_id) {
+      this.ctx.throw('评论记录ID不能为空');
+    }
+
+    const results = await ctx.service.content.review.delete(user_id, reqData.review_id);
+    if (results) {
+      ctx.body = {
+        data: {},
+      };
+    }
+  }
 }
 
 module.exports = ReviewController;

@@ -27,6 +27,8 @@ module.exports = app => {
 
   router.post('/content/help/registAdd', app.jwt, controller.content.help.registAdd);// 1.2.26、 会员参与互助接口
 
+  router.post('/content/review/delete', app.jwt, controller.content.review.delete);// 1.2.24、 删除评论接口
+
 
   router.post('/content/question/registAdd', app.jwt, controller.content.question.registAdd);// 1.2.30、 会员参与问答接口
 

@@ -143,7 +143,7 @@ class ReviewService extends Service {
           console.log('中奖了');
         } else {
           const sqlstr =
-          `UPDATE ${app.config.dbprefix}review_record
+            `UPDATE ${app.config.dbprefix}review_record
           SET like_num = like_num + (${like_num_offset})
           WHERE review_id = ${reqData.review_id}`;
           await sqlrevsetlike.query(sqlstr);
@@ -179,6 +179,27 @@ class ReviewService extends Service {
       desc,
     };
     await this.ctx.service.common.noticeRecordAdd(noticedata);
+  }
+
+  async delete(user_id, review_id) {
+
+    const date_now = this.ctx.service.base.fromatDate(new Date().getTime());
+
+    const delinfo = await this.app.mysql.update(this.app.config.dbprefix + 'user_profile',
+      {
+        state: 2,
+        update_state_user_time: date_now,
+      },
+      {
+        where: {
+          user_id,
+          review_id,
+        },
+      });
+    if (delinfo) {
+      return true;
+    }
+    this.ctx.throw('删除失败');
   }
 }
 
