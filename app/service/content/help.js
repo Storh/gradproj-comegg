@@ -68,6 +68,65 @@ class HelpService extends Service {
     };
     await this.ctx.service.common.noticeRecordAdd(noticedata);
   }
+
+  async registReply(user_id, reqData) {
+    const regist_id = reqData.regist_id;
+    const reply_text = reqData.reply_text;
+
+    // 获取参与人id
+    const replyBaseInfoRow = await this.app.mysql.get(this.app.config.dbprefix + 'help_regist', {
+      regist_id,
+      state: 1,
+      is_delete: 0,
+    });
+    const replyBaseInfo = JSON.parse(JSON.stringify(replyBaseInfoRow));
+    const content_id = replyBaseInfo.content_id;
+    const receive_user_id = replyBaseInfo.user_id;
+
+    // 获取动态内容类型
+    const contentBaseInfoRow = await this.app.mysql.get(this.app.config.dbprefix + 'content_record', {
+      content_id,
+      user_id,
+      state: 1,
+      is_delete: 0,
+    });
+    const contentBaseInfo = JSON.parse(JSON.stringify(contentBaseInfoRow));
+    const content_type = contentBaseInfo.type_id;
+
+    const date_now = this.ctx.service.base.fromatDate(new Date().getTime());
+
+    const replyinfo = await this.app.mysql.update(this.app.config.dbprefix + 'help_regist',
+      {
+        reply_text,
+        reply_time: date_now,
+      },
+      { where: { regist_id } });
+
+    if (replyinfo) {
+      // 通知
+      this.registReplyPostNotice(user_id, content_id, regist_id, receive_user_id, content_type, reply_text);
+      return replyinfo.insertId;
+    }
+    this.ctx.throw('提交失败');
+  }
+
+  async registReplyPostNotice(user_id, content_id, regist_id, receive_user_id, content_type, reply_text) {
+    // SYSTEM系统通知(1);CONTENT_REGIST内容参与记录(2);CONTENT_REVIEW内容评论记录(3);TYPE_LIKE点赞(4);
+    const userInfo = await this.ctx.service.member.info.getInfo(user_id);
+
+    const noticedata = {
+      type_id: 3,
+      receive_user_id,
+      start_user_id: user_id,
+      rel_id: regist_id,
+      content_id,
+      regist_id,
+      content_type,
+      title: userInfo.nickname + '回复了你参与的' + this.app.config.contentType[content_type - 1].name,
+      desc: reply_text,
+    };
+    await this.ctx.service.common.noticeRecordAdd(noticedata);
+  }
 }
 
 module.exports = HelpService;

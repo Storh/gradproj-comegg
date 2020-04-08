@@ -25,9 +25,10 @@ module.exports = app => {
   router.post('/content/review/getListById', app.jwt, controller.content.review.getListById);// 1.2.21、 获取动态记录评论列表
   router.post('/content/review/add', app.jwt, controller.content.review.add);// 1.2.22、 为动态添加评论接口
 
-  router.post('/content/help/registAdd', app.jwt, controller.content.help.registAdd);// 1.2.26、 会员参与互助接口
-
   router.post('/content/review/delete', app.jwt, controller.content.review.delete);// 1.2.24、 删除评论接口
+
+  router.post('/content/help/registAdd', app.jwt, controller.content.help.registAdd);// 1.2.26、 会员参与互助接口
+  router.post('/content/help/registReply', app.jwt, controller.content.help.registReply);// 1.2.27、 会员参与互助回复接口
 
 
   router.post('/content/question/registAdd', app.jwt, controller.content.question.registAdd);// 1.2.30、 会员参与问答接口
