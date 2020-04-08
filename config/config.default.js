@@ -74,26 +74,32 @@ module.exports = appInfo => {
       {
         name: '互助',
         id: 1,
+        registTable: 'help_regist',
       },
       {
         name: '问答',
         id: 2,
+        registTable: 'question_regist',
       },
       {
         name: '共享',
         id: 3,
+        registTable: 'unused_regist',
       },
       {
         name: '活动',
         id: 4,
+        registTable: 'activity_regist',
       },
       {
         name: '团购',
         id: 5,
+        registTable: 'pack_regist',
       },
       {
         name: '话题',
         id: 6,
+        registTable: 'topic_regist',
       },
     ],
     // myAppName: 'egg',
