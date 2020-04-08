@@ -28,6 +28,26 @@ class ReviewController extends Controller {
       data: { review_id },
     };
   }
+
+  // 评论点赞
+  async setLike() {
+    const { ctx } = this;
+    const user_id = ctx.state.user.user_id;
+    const reqData = ctx.request.body;
+
+    if (!reqData.review_id) {
+      this.ctx.throw('评论记录ID不能为空');
+    }
+    if (!reqData.like_state) {
+      this.ctx.throw('点赞状态不能为空');
+    }
+    const results = await ctx.service.content.review.setLike(user_id, reqData);
+    if (results) {
+      ctx.body = {
+        data: {},
+      };
+    }
+  }
 }
 
 module.exports = ReviewController;

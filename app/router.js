@@ -40,6 +40,9 @@ module.exports = app => {
   router.post('/content/main/setLike', app.jwt, controller.content.main.setLike);// 1.2.44、 为动态点赞
 
 
+  router.post('/content/review/setLike', app.jwt, controller.content.review.setLike);// 1.2.46、 为评论点赞
+
+
   router.post('/member/info/getInfo', app.jwt, controller.member.info.getInfo);// 1.5.1、 获取用户基本信息
 
   router.post('/baseData/distList', app.jwt, controller.baseData.distList);// 1.6.1、 获取街道小区列表
