@@ -4,6 +4,77 @@ const Service = require('egg').Service;
 
 class MainService extends Service {
 
+  async add(user_id, reqData) {
+    const { ctx, app } = this;
+    const date_now = ctx.service.base.fromatDate(new Date().getTime());
+    const userInfo = await this.ctx.service.member.info.getInfo(user_id);
+
+    const type_id = reqData.type_id;
+    const title = reqData.title;
+    const images = reqData.images;
+    const content = reqData.content;
+    const show_type = reqData.show_type;
+    const keyword = reqData.keyword;
+    const link_external_name = reqData.link_external_name;
+    const link_external_url = reqData.link_external_url;
+    const district_id = userInfo.district_id;
+    let content_id;
+
+    const trans_success = await app.mysql.beginTransactionScope(async addmain => {
+
+      const add_main_log = await addmain.insert(app.config.dbprefix + 'content_record', {
+        type_id,
+        user_id,
+        district_id,
+        title,
+        content,
+        show_type,
+        keyword,
+        link_external_name,
+        link_external_url,
+        add_time: date_now,
+      });
+      content_id = add_main_log.insertId;
+
+      // 关键字
+      if (keyword) {
+        const keywordArr = keyword.split(',');
+        keywordArr.map(async aword => {
+          addmain.insert(app.config.dbprefix + 'content_keyword', {
+            content_id,
+            keyword: aword,
+          });
+        });
+      }
+
+      // 图片
+      if (images) {
+        const uploadType = 2;// 动态内容图片
+        const photoIdArr = images.map(item => {
+          return item.id;
+        });
+        await addmain.update(app.config.dbprefix + 'upload_file_record',
+          {
+            rel_id: content_id,
+          },
+          {
+            where: {
+              type_id: uploadType,
+              user_id,
+              rel_id: 0,
+              file_id: photoIdArr,
+            },
+          });
+      }
+      return true;
+    }, ctx);
+
+    if (!trans_success) {
+      ctx.throw('提交失败，请重试');
+    }
+    return content_id;
+  }
+
   // 喜欢或不喜欢
   async setLike(user_id, reqData) {
     const like_state = Number(reqData.like_state);
