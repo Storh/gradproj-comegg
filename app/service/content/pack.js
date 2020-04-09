@@ -329,6 +329,38 @@ ORDER BY
     }
     return order_amount;
   }
+
+  async getGoodsListById(content_id) {
+    const sqlstr =
+    `SELECT
+    a.goods_id,
+    a.goods_name,
+    a.goods_specs,
+    a.goods_price,
+    a.goods_number,
+    SUM( b.goods_number ) AS used_number
+FROM
+    ${this.app.config.dbprefix}goods a
+    LEFT JOIN ${this.app.config.dbprefix}order_goods b ON b.goods_id = a.goods_id
+WHERE
+    1
+    AND a.is_delete = 0
+    AND a.content_id = ${content_id}
+    AND ( ( SELECT order_status FROM ${this.app.config.dbprefix}order_info WHERE order_id = b.order_id ) IN ( 1, 2 ) OR b.goods_number IS NULL )
+GROUP BY
+    a.goods_id
+ORDER BY
+    a.goods_id ASC`;
+    const results = await this.app.mysql.query(sqlstr);
+
+    const list = results.map(async item => {
+      const used_number = item.used_number ? item.used_number : 0;
+      item.remaining_number = item.goods_number - used_number;
+      delete item.used_number;
+      return item;
+    });
+    return list;
+  }
 }
 
 module.exports = PackService;
