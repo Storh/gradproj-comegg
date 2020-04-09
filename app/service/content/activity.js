@@ -240,6 +240,72 @@ AND file_id NOT IN (${photoIdArr.toString()})`;
     }
     return true;
   }
+
+  async registAdd(user_id, reqData) {
+    const date_now = this.ctx.service.base.fromatDate(new Date().getTime());
+    const is_regist = await this.app.mysql.get(this.app.config.dbprefix + 'activity_regist',
+      {
+        user_id,
+        content_id: reqData.content_id,
+        is_delete: 0,
+        state: 1,
+      });
+    if (is_regist) this.ctx.throw('您已参与过了这次活动了');
+
+    const active_info = await this.app.mysql.get(this.app.config.dbprefix + 'activity_content',
+      {
+        content_id: reqData.content_id,
+      });
+    const activity_content = JSON.parse(JSON.stringify(active_info));
+    const closing_date = activity_content.closing_date;
+    const num_upper_limit = activity_content.num_upper_limit;
+    if (new Date(closing_date).getTime() - new Date().getTime() <= 0) this.ctx.throw('很抱歉，该活动已结束，请关注下次活动');
+
+    const limirsql =
+`SELECT count(*) as nums
+FROM ${this.app.config.dbprefix}activity_regist
+WHERE 1
+AND is_delete = 0
+AND state = 1
+AND content_id = ${reqData.content_id}`;
+    const row = await this.app.mysql.query(limirsql);
+    const limitusernum = JSON.parse(JSON.stringify(row)[0]);
+    if (limitusernum.nums + 1 > num_upper_limit) this.ctx.throw('很抱歉，该活动已达参与人数上限，谢谢您的参与，请关注下次活动');
+
+    const remark = reqData.remark;
+
+    const regist_log = await this.app.mysql.insert(this.app.config.dbprefix + 'activity_regist', {
+      user_id,
+      content_id: reqData.content_id,
+      remark,
+      add_time: date_now,
+    });
+    if (regist_log) {
+      // 通知
+      this.registAddPostNotice(user_id, reqData.content_id, regist_log.insertId);
+      return regist_log.insertId;
+    }
+    this.ctx.throw('提交失败');
+  }
+
+  async registAddPostNotice(user_id, content_id, regist_id) {
+    // SYSTEM系统通知(1);CONTENT_REGIST内容参与记录(2);CONTENT_REVIEW内容评论记录(3);TYPE_LIKE点赞(4);
+    const userInfo = await this.ctx.service.member.info.getInfo(user_id);
+    const contentInfo = await this.ctx.service.common.getContentInfoById(content_id);
+
+    const noticedata = {
+      type_id: 2,
+      receive_user_id: contentInfo.user_id,
+      start_user_id: user_id,
+      rel_id: regist_id,
+      content_id,
+      regist_id,
+      content_type: contentInfo.type_id,
+      title: userInfo.nickname + '参与了你的' + this.app.config.contentType[contentInfo.type_id - 1].name,
+      desc: contentInfo.content,
+    };
+    await this.ctx.service.common.noticeRecordAdd(noticedata);
+  }
 }
 
 module.exports = ActivityService;
