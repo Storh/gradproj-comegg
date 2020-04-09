@@ -101,6 +101,7 @@ class MainController extends Controller {
     }
   }
 
+  // 发布动态
   async add() {
     const { ctx } = this;
     const user_id = ctx.state.user.user_id;

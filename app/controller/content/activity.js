@@ -38,6 +38,26 @@ class ActivityController extends Controller {
       data,
     };
   }
+
+  // 发布动态接口（活动）
+  async add() {
+    const { ctx } = this;
+    const user_id = ctx.state.user.user_id;
+    const reqData = ctx.request.body;
+
+    if (!reqData.title) { this.ctx.throw('标题不能为空'); }
+    if (!reqData.content) { this.ctx.throw('内容描述不能为空'); }
+    if (!reqData.show_type) { this.ctx.throw('可见类型不能为空'); }
+    if (!reqData.closing_date) { this.ctx.throw('活动截止日期不能为空'); }
+    if (!reqData.num_upper_limit) { this.ctx.throw('活动参与人数上限不能为空'); }
+
+    const content_id = await ctx.service.content.activity.add(user_id, reqData);
+    if (content_id) {
+      ctx.body = {
+        data: { content_id },
+      };
+    }
+  }
 }
 
 module.exports = ActivityController;
