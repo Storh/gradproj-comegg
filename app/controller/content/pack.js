@@ -101,6 +101,26 @@ class PackController extends Controller {
       data: { list },
     };
   }
+
+  // 发布动态接口（拼团）
+  async add() {
+    const { ctx } = this;
+    const user_id = ctx.state.user.user_id;
+    const reqData = ctx.request.body;
+
+    if (!reqData.title) { this.ctx.throw('标题不能为空'); }
+    if (!reqData.content) { this.ctx.throw('内容描述不能为空'); }
+    if (!reqData.show_type) { this.ctx.throw('可见类型不能为空'); }
+    if (!reqData.closing_date) { this.ctx.throw('拼团截止日期不能为空'); }
+    if (!reqData.goods) { this.ctx.throw('商品信息不能为空'); }
+
+    const content_id = await ctx.service.content.pack.add(user_id, reqData);
+    if (content_id) {
+      ctx.body = {
+        data: { content_id },
+      };
+    }
+  }
 }
 
 module.exports = PackController;

@@ -26,6 +26,7 @@ module.exports = app => {
   router.post('/content/topic/getListById', app.jwt, controller.content.topic.getListById);// 1.2.13、 获取话题参与详情列表
   router.post('/content/main/add', app.jwt, controller.content.main.add);// 1.2.14、 提交发布动态接口
   router.post('/content/activity/add', app.jwt, controller.content.activity.add);// 1.2.15、 提交发布动态接口（活动）
+  router.post('/content/pack/add', app.jwt, controller.content.pack.add);// 1.2.16、 提交发布动态接口（拼团）
 
 
   router.post('/content/review/getListById', app.jwt, controller.content.review.getListById);// 1.2.21、 获取动态记录评论列表
