@@ -268,6 +268,67 @@ ${limit}`;
     const resultsGoods = await this.app.mysql.query(sqlstr);
     return resultsGoods;
   }
+
+  async getGoodsListAllById(content_id) {
+    const sqlstr =
+    `SELECT
+    t.goods_id, t.goods_name, t.goods_specs, t.goods_price, t.goods_number,
+    SUM( t.buy_number ) AS used_number
+FROM
+    (
+    SELECT
+        a.goods_id,
+        a.goods_name,
+        a.goods_specs,
+        a.goods_price,
+        a.goods_number,
+        a.is_delete,
+        b.order_id,
+        b.goods_number AS buy_number
+    FROM
+        ${this.app.config.dbprefix}goods a
+        LEFT JOIN ${this.app.config.dbprefix}order_goods b ON b.goods_id = a.goods_id
+        LEFT JOIN ${this.app.config.dbprefix}order_info c ON c.order_id = b.order_id
+    WHERE
+        1
+        AND a.content_id = ${content_id}
+        AND ( a.is_delete = 0 OR b.goods_number IS NOT NULL )
+        AND ( c.order_status IN (1,2) OR b.goods_number IS NULL )
+    ) t
+WHERE
+    1
+GROUP BY
+    t.goods_id
+ORDER BY
+    t.goods_id ASC`;
+    const results = await this.app.mysql.query(sqlstr);
+
+    const list = results.map(async item => {
+      const used_number = item.used_number ? item.used_number : 0;
+      item.remaining_number = item.goods_number - used_number;
+      delete item.is_delete;
+      delete item.used_number;
+      return item;
+    });
+    return list;
+  }
+
+  async getOrderAmountByContentId(user_id, content_id) {
+    const sqlstr =
+    `SELECT SUM(order_amount) AS order_amount
+
+    FROM ${this.app.config.dbprefix}order_info
+    WHERE 1
+    AND content_id = ${content_id}
+    AND launch_user_id = ${user_id}`;
+    const results = await this.app.mysql.query(sqlstr);
+    let order_amount = 0;
+    if (results) {
+      const result = JSON.parse(JSON.stringify(results[0]));
+      order_amount = result.order_amount;
+    }
+    return order_amount;
+  }
 }
 
 module.exports = PackService;

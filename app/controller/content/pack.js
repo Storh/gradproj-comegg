@@ -56,6 +56,7 @@ class PackController extends Controller {
     };
   }
 
+  // 获取拼团参与列表（拼团-订单）
   async getOrderListById() {
     const { ctx } = this;
     const user_id = ctx.state.user.user_id;
@@ -65,6 +66,27 @@ class PackController extends Controller {
     const list = await ctx.service.content.pack.getOrderListById(user_id, reqData);
     ctx.body = {
       data: { list },
+    };
+  }
+
+  // 拼团商品列表（拼团-商品明细
+  async getSelfGoodsInfoById() {
+    const { ctx } = this;
+    const user_id = ctx.state.user.user_id;
+    const reqData = ctx.request.body;
+    if (!reqData.content_id) { this.ctx.throw('动态ID不能为空'); }
+
+    const list = await ctx.service.content.pack.getGoodsListAllById(reqData.content_id);
+    let order_amount = 0;
+    if (list) {
+      order_amount = await ctx.service.content.pack.getOrderAmountByContentId(user_id, reqData.content_id);
+    }
+
+    ctx.body = {
+      data: {
+        list,
+        order_amount,
+      },
     };
   }
 }
