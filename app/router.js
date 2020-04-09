@@ -27,6 +27,9 @@ module.exports = app => {
   router.post('/content/main/add', app.jwt, controller.content.main.add);// 1.2.14、 提交发布动态接口
   router.post('/content/activity/add', app.jwt, controller.content.activity.add);// 1.2.15、 提交发布动态接口（活动）
   router.post('/content/pack/add', app.jwt, controller.content.pack.add);// 1.2.16、 提交发布动态接口（拼团）
+  router.post('/content/main/edit', app.jwt, controller.content.main.edit);// 1.2.17、 编辑动态接口
+  router.post('/content/activity/edit', app.jwt, controller.content.activity.edit);// 1.2.18、 编辑动态接口（活动）
+  router.post('/content/pack/edit', app.jwt, controller.content.pack.edit);// 1.2.19、 编辑动态接口（拼团）
 
 
   router.post('/content/review/getListById', app.jwt, controller.content.review.getListById);// 1.2.21、 获取动态记录评论列表

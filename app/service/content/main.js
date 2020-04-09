@@ -75,6 +75,96 @@ class MainService extends Service {
     return content_id;
   }
 
+  async edit(user_id, reqData) {
+    const { ctx, app } = this;
+    const date_now = ctx.service.base.fromatDate(new Date().getTime());
+
+    const content_id = reqData.content_id;
+    const title = reqData.title;
+    const images = reqData.images;
+    const content = reqData.content;
+    const show_type = reqData.show_type;
+    const keyword = reqData.keyword;
+    const link_external_name = reqData.link_external_name;
+    const link_external_url = reqData.link_external_url;
+
+    const trans_success = await app.mysql.beginTransactionScope(async addmain => {
+
+      addmain.update(app.config.dbprefix + 'content_record', {
+        title,
+        content,
+        show_type,
+        keyword,
+        link_external_name,
+        link_external_url,
+        modify_time: date_now,
+      },
+      {
+        where: {
+          content_id,
+          user_id,
+        },
+      });
+
+      // 关键字
+      await addmain.delete(app.config.dbprefix + 'content_keyword', {
+        content_id,
+      });
+
+      if (keyword) {
+        const keywordArr = keyword.split(',');
+        keywordArr.map(async aword => {
+          addmain.insert(app.config.dbprefix + 'content_keyword', {
+            content_id,
+            keyword: aword,
+          });
+        });
+      }
+
+      // 图片
+      if (images) {
+        const uploadType = 2;// 动态内容图片
+        const photoIdArr = images.map(item => {
+          return item.id;
+        });
+        // 删除原来存储的图片
+        const delstr =
+          `SELECT *
+FROM ${app.config.dbprefix}upload_file_record
+WHERE type_id=${uploadType}
+AND user_id=${user_id}
+AND rel_id=${content_id}
+AND file_id NOT IN (${photoIdArr.toString()})`;
+        const dellist = await addmain.query(delstr);
+
+        dellist.map(async item => {
+          addmain.delete(app.config.dbprefix + 'upload_file_record', {
+            file_id: item.file_id,
+          });
+        });
+
+        await addmain.update(app.config.dbprefix + 'upload_file_record',
+          {
+            rel_id: content_id,
+          },
+          {
+            where: {
+              type_id: uploadType,
+              user_id,
+              rel_id: 0,
+              file_id: photoIdArr,
+            },
+          });
+      }
+      return true;
+    }, ctx);
+
+    if (!trans_success) {
+      ctx.throw('提交失败，请重试');
+    }
+    return true;
+  }
+
   // 喜欢或不喜欢
   async setLike(user_id, reqData) {
     const like_state = Number(reqData.like_state);
@@ -378,7 +468,7 @@ class MainService extends Service {
           console.log('中奖了');
         } else {
           const sqlstr =
-          `UPDATE ${app.config.dbprefix}content_record
+            `UPDATE ${app.config.dbprefix}content_record
           SET collect_num = collect_num + (${collect_num_offset})
           WHERE content_id = ${reqData.content_id}`;
           await sqlsetColl.query(sqlstr);

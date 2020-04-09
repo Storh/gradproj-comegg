@@ -121,6 +121,27 @@ class PackController extends Controller {
       };
     }
   }
+
+  // 编辑拼团
+  async edit() {
+    const { ctx } = this;
+    const user_id = ctx.state.user.user_id;
+    const reqData = ctx.request.body;
+
+    if (!reqData.content_id) { this.ctx.throw('动态ID不能为空'); }
+    if (!reqData.title) { this.ctx.throw('标题不能为空'); }
+    if (!reqData.content) { this.ctx.throw('内容描述不能为空'); }
+    if (!reqData.show_type) { this.ctx.throw('可见类型不能为空'); }
+    if (!reqData.closing_date) { this.ctx.throw('拼团截止日期不能为空'); }
+    if (!reqData.goods) { this.ctx.throw('商品信息不能为空'); }
+
+    const result = await ctx.service.content.pack.edit(user_id, reqData);
+    if (result) {
+      ctx.body = {
+        data: { },
+      };
+    }
+  }
 }
 
 module.exports = PackController;

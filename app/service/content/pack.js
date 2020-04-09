@@ -454,6 +454,142 @@ ORDER BY
     }
     return content_id;
   }
+
+  async edit(user_id, reqData) {
+    const { ctx, app } = this;
+    const date_now = ctx.service.base.fromatDate(new Date().getTime());
+
+    const content_id = reqData.content_id;
+    const title = reqData.title;
+    const images = reqData.images;
+    const content = reqData.content;
+    const show_type = reqData.show_type;
+    const keyword = reqData.keyword;
+    const link_external_name = reqData.link_external_name;
+    const link_external_url = reqData.link_external_url;
+    const closing_date = new Date(reqData.closing_date);
+    const goods = reqData.goods;// 商品数组
+
+    const trans_success = await app.mysql.beginTransactionScope(async addmain => {
+
+      // 更新动态内容表
+      addmain.update(app.config.dbprefix + 'content_record', {
+        title,
+        content,
+        show_type,
+        keyword,
+        link_external_name,
+        link_external_url,
+        modify_time: date_now,
+      },
+      {
+        where: {
+          content_id,
+          user_id,
+        },
+      });
+      // 更新团购内容表
+      addmain.update(app.config.dbprefix + 'pack_content', {
+        closing_date,
+      }, {
+        where: {
+          content_id,
+        },
+      });
+
+      // 关键字
+      await addmain.delete(app.config.dbprefix + 'content_keyword', {
+        content_id,
+      });
+
+      if (keyword) {
+        const keywordArr = keyword.split(',');
+        keywordArr.map(async aword => {
+          addmain.insert(app.config.dbprefix + 'content_keyword', {
+            content_id,
+            keyword: aword,
+          });
+        });
+      }
+
+      // 图片
+      if (images) {
+        const uploadType = 2;// 动态内容图片
+        const photoIdArr = images.map(item => {
+          return item.id;
+        });
+        // 删除原来存储的图片
+        const delstr =
+          `SELECT *
+  FROM ${app.config.dbprefix}upload_file_record
+  WHERE type_id=${uploadType}
+  AND user_id=${user_id}
+  AND rel_id=${content_id}
+  AND file_id NOT IN (${photoIdArr.toString()})`;
+        const dellist = await addmain.query(delstr);
+
+        dellist.map(async item => {
+          addmain.delete(app.config.dbprefix + 'upload_file_record', {
+            file_id: item.file_id,
+          });
+        });
+
+        await addmain.update(app.config.dbprefix + 'upload_file_record', {
+          rel_id: content_id,
+        }, {
+          where: {
+            type_id: uploadType,
+            user_id,
+            rel_id: 0,
+            file_id: photoIdArr,
+          },
+        });
+      }
+
+      // 商品
+
+      const goodsIdArr = goods.map(async gooditem => {
+        if (gooditem.goods_id) {
+          addmain.update(app.config.dbprefix + 'goods', {
+            goods_name: gooditem.goods_name,
+            goods_specs: gooditem.goods_specs,
+            goods_price: gooditem.goods_price,
+            goods_number: gooditem.goods_number,
+          }, {
+            where: {
+              goods_id: gooditem.goods_id,
+              content_id,
+            },
+          });
+          return gooditem.goods_id;
+        }
+        const newgood = await addmain.insert(app.config.dbprefix + 'goods', {
+          user_id,
+          content_id,
+          content_type: 5,
+          goods_name: gooditem.goods_name,
+          goods_specs: gooditem.goods_specs,
+          goods_price: gooditem.goods_price,
+          goods_number: gooditem.goods_number,
+        });
+        return newgood.insertId;
+      });
+      // 删除用户前端删除的商品
+      const delgoodstr =
+  `UPDATE ${app.config.dbprefix}goods
+  SET is_delete=1
+  WHERE user_id=${user_id}
+  AND content_id=${content_id}
+  AND goods_id NOT IN (${goodsIdArr.toString()})`;
+      addmain.query(delgoodstr);
+      return true;
+    }, ctx);
+
+    if (!trans_success) {
+      ctx.throw('提交失败，请重试');
+    }
+    return true;
+  }
 }
 
 module.exports = PackService;
