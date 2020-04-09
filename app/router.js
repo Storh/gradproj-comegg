@@ -17,6 +17,9 @@ module.exports = app => {
   router.post('/content/activity/getListById', app.jwt, controller.content.activity.getListById);// 1.2.4、 获取活动参与列表（活动-用户）
   router.post('/content/pack/getDetailById', app.jwt, controller.content.pack.getDetailById);// 1.2.5、 获取动态记录详情（拼团）
   router.post('/content/pack/getListById', app.jwt, controller.content.pack.getListById);// 1.2.6、 获取拼团参与列表（拼团-用户）
+
+  router.post('/content/pack/getOrderListById', app.jwt, controller.content.pack.getOrderListById);// 1.2.8、 获取拼团参与列表（拼团-订单）
+
   router.post('/content/help/getListById', app.jwt, controller.content.help.getListById);// 1.2.10、 获取互助参与详情列表
   router.post('/content/question/getListById', app.jwt, controller.content.question.getListById);// 1.2.11、 获取问答参与详情列表
   router.post('/content/unused/getListById', app.jwt, controller.content.unused.getListById);// 1.2.12、 获取闲置参与详情列表

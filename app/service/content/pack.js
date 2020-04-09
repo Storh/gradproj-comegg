@@ -228,6 +228,46 @@ class PackService extends Service {
     };
     await this.ctx.service.common.noticeRecordAdd(noticedata);
   }
+
+  async getOrderListById(user_id, reqData) {
+    const limitrow = await this.ctx.service.common.getPageStyle(reqData);
+    const limit = limitrow.limit;
+    const sqlstr =
+      `SELECT
+a.order_id,a.regist_user_id,a.add_time,a.order_amount,a.consignee,a.mobile,a.address,a.message,
+b.nickname,b.headimgurl
+
+FROM ${this.app.config.dbprefix}order_info a
+INNER JOIN ${this.app.config.dbprefix}user_profile b ON b.user_id = a.regist_user_id
+
+WHERE a.content_id = ${reqData.content_id}
+AND a.launch_user_id = ${user_id}
+
+ORDER BY a.order_id DESC
+${limit}`;
+    const results = await this.app.mysql.query(sqlstr);
+    const list = results.map(async item => {
+      if (item.headimgurl.length < 100) item.headimgurl = this.app.config.publicAdd + item.headimgurl;
+      if (item.add_time) item.add_time = new Date(item.add_time).toLocaleString();
+      item.goods = await this.getOrderGoodsList(item.order_id);
+      return item;
+    });
+    return list;
+  }
+
+  async getOrderGoodsList(order_id) {
+    const sqlstr =
+    `SELECT
+    goods_name,goods_specs,goods_price,goods_number
+
+    FROM ${this.app.config.dbprefix}order_goods
+
+    WHERE order_id = ${order_id}
+
+    ORDER BY record_id ASC`;
+    const resultsGoods = await this.app.mysql.query(sqlstr);
+    return resultsGoods;
+  }
 }
 
 module.exports = PackService;
