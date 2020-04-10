@@ -3,6 +3,7 @@
 const Controller = require('egg').Controller;
 
 class InfoController extends Controller {
+  // 编辑用户信息
   async reg() {
     const { ctx } = this;
     const user_id = ctx.state.user.user_id;
@@ -25,6 +26,7 @@ class InfoController extends Controller {
     }
   }
 
+  // 获取用户基本信息
   async getInfo() {
     const { ctx } = this;
     const user_id = ctx.request.body.user_id;// 获取post数据
@@ -53,6 +55,18 @@ class InfoController extends Controller {
     userInfo.hobby = await ctx.service.common.getUserSpecHobyById(user_id, 'hobby');
     ctx.body = {
       data: userInfo,
+    };
+  }
+
+  // 获取通讯录列表
+  async addressBookList() {
+    const { ctx } = this;
+    const user_id = ctx.state.user.user_id;
+    const reqData = ctx.request.body;
+
+    const list = await ctx.service.member.info.getAddressList(user_id, reqData);
+    ctx.body = {
+      data: { list },
     };
   }
 }

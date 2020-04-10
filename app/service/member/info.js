@@ -18,12 +18,37 @@ class InfoService extends Service {
     const updateSuccess = result.affectedRows === 1;
     return updateSuccess;
   }
+
   async getInfo(user_id) {
     const result = await this.app.mysql.select(this.app.config.dbprefix + 'user_profile', {
       where: { user_id, state: 1 },
       columns: [ 'user_id', 'phone', 'nickname', 'headimgurl', 'sex', 'district_id', 'personal_signature', 'is_manage' ], // 要查询的表字段
     });
     return JSON.parse(JSON.stringify(result))[0];
+  }
+
+  async getAddressList(user_id, reqData) {
+    const limitrow = await this.ctx.service.common.getPageStyle(reqData);
+    const limit = limitrow.limit;
+    const userInfo = await this.ctx.service.member.info.getInfo(user_id);
+
+    const sql =
+    `SELECT user_id,nickname,headimgurl,personal_signature,name_first_letter
+
+    FROM ${this.app.config.dbprefix}user_profile
+
+    WHERE state = 1
+    AND user_id != ${user_id}
+    AND district_id = ${userInfo.district_id}
+
+    ORDER BY REPLACE(name_first_letter, '#', 'ZZZ') ASC, user_id DESC
+    ${limit}`;
+    const results = await this.app.mysql.query(sql);
+    const list = results.map(item => {
+      if (item.headimgurl.length < 100) item.headimgurl = this.app.config.publicAdd + item.headimgurl;
+      return item;
+    });
+    return list;
   }
 }
 
