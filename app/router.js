@@ -61,6 +61,9 @@ module.exports = app => {
   router.post('/content/main/setCollect', app.jwt, controller.content.main.setCollect);// 1.2.47、 收藏动态
 
   router.post('/addressBook/main/getList', app.jwt, controller.member.info.addressBookList);// 1.3.1、 获取通讯录列表
+  router.post('/notice/main/getList', app.jwt, controller.notice.getList);// 1.4.1、 获取通知列表
+  router.post('/notice/main/setRead', app.jwt, controller.notice.setRead);// 1.4.2、 标记通知已读状态
+  router.post('/notice/official/getDetailById', app.jwt, controller.notice.getDetailById);// 1.4.3、 获取系统通知详情
 
 
   router.post('/member/info/getInfo', app.jwt, controller.member.info.getInfo);// 1.5.1、 获取用户基本信息
