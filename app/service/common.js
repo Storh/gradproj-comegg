@@ -171,16 +171,15 @@ class CommonService extends Service {
     const order = orderArr.toString();
     const rand = Math.floor(Math.random() * (999 - 111 + 1) + 111).toString();
 
-    const date = new Date().getTime();
-    const formatArr = [
-      date.getFullYear().toString(),
-      (date.getMonth() + 1).toString(),
-      date.getDate().toString(),
-      date.getHours().toString(),
-      date.getMinutes().toString(),
-      date.getSeconds().toString(),
-    ];
-    const order_no = formatArr.map(formatNumber) + rand + order;
+    const date = new Date();
+    const year = date.getFullYear();
+    const month = date.getMonth() + 1;
+    const day = date.getDate();
+    const hour = date.getHours();
+    const minute = date.getMinutes();
+    const second = date.getSeconds();
+    const formatArr = [ year, month, day, hour, minute, second ];
+    const order_no = formatArr.map(formatNumber).toString().replace(/,/g, '') + rand + order;
     return order_no;
   }
 
