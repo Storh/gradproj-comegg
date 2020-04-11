@@ -4,6 +4,7 @@ const path = require('path');
 const sendToWormhole = require('stream-wormhole');
 const awaitWriteStream = require('await-stream-ready').write;
 const Controller = require('egg').Controller;
+const sizeOf = require('image-size');
 const formatNumber = n => {
   n = n.toString();
   return n[1] ? n : '0' + n;
@@ -33,8 +34,7 @@ class BaseDataController extends Controller {
   }
   async uploadPhoto() {
     const ctx = this.ctx;
-    // const user_id = ctx.state.user.user_id;
-    const user_id = 1;
+    const user_id = ctx.state.user.user_id;
     const stream = await ctx.getFileStream();
     // 文件名
     const date = new Date();
@@ -54,22 +54,23 @@ class BaseDataController extends Controller {
     const uplaodBasePath = 'app/public/' + feildate;
 
     // 生成一个文件写入流
-    const target = path.join(this.config.baseDir, uplaodBasePath, filename);
+    // const target = path.join(this.config.baseDir, uplaodBasePath, filename);
+    const target = path.join(uplaodBasePath, filename);
     const writeStream = fs.createWriteStream(target);
     try {
       // 异步把文件流写入
       await awaitWriteStream(stream.pipe(writeStream));
-
+      const dimensions = sizeOf(uplaodBasePath + filename);
+      // console.log(dimensions.width, dimensions.height);
+      const data = await ctx.service.common.upload(user_id, feildate + filename, dimensions);
+      ctx.body = {
+        data,
+      };
     } catch (err) {
       // 如果出现错误，关闭管道
       await sendToWormhole(stream);
       this.ctx.throw('上传失败');
     }
-
-    ctx.body = {
-
-
-    };
   }
 }
 

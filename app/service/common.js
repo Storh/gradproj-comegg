@@ -183,6 +183,25 @@ class CommonService extends Service {
     return order_no;
   }
 
+  async upload(user_id, src, imgsize) {
+    const date_now = this.ctx.service.base.fromatDate(new Date().getTime());
+
+    const uploadImg = await this.app.mysql.insert(this.app.config.dbprefix + 'upload_file_record', {
+      type_id: 2,
+      user_id,
+      src,
+      img_width: imgsize.width,
+      img_height: imgsize.height,
+      add_time: date_now,
+    });
+    if (uploadImg) {
+      return {
+        id: uploadImg.insertId,
+        src: this.app.config.publicAdd + src,
+      };
+    }
+    this.ctx.throw('添加失败');
+  }
 }
 
 module.exports = CommonService;
