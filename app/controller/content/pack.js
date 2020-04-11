@@ -55,6 +55,93 @@ class PackController extends Controller {
       data: { regist_id },
     };
   }
+
+  // 获取拼团参与列表（拼团-订单）
+  async getOrderListById() {
+    const { ctx } = this;
+    const user_id = ctx.state.user.user_id;
+    const reqData = ctx.request.body;
+    if (!reqData.content_id) { this.ctx.throw('动态ID不能为空'); }
+
+    const list = await ctx.service.content.pack.getOrderListById(user_id, reqData);
+    ctx.body = {
+      data: { list },
+    };
+  }
+
+  // 拼团商品列表（拼团-商品明细
+  async getSelfGoodsInfoById() {
+    const { ctx } = this;
+    const user_id = ctx.state.user.user_id;
+    const reqData = ctx.request.body;
+    if (!reqData.content_id) { this.ctx.throw('动态ID不能为空'); }
+
+    const list = await ctx.service.content.pack.getGoodsListAllById(reqData.content_id);
+    let order_amount = 0;
+    if (list) {
+      order_amount = await ctx.service.content.pack.getOrderAmountByContentId(user_id, reqData.content_id);
+    }
+
+    ctx.body = {
+      data: {
+        list,
+        order_amount,
+      },
+    };
+  }
+
+  // 1.2.7、 获取拼团商品列表（拼团-商品）
+  async getGoodsListById() {
+    const { ctx } = this;
+    // const user_id = ctx.state.user.user_id;
+    const reqData = ctx.request.body;
+    if (!reqData.content_id) { this.ctx.throw('动态ID不能为空'); }
+    const list = await ctx.service.content.pack.getGoodsListById(reqData.content_id);
+    ctx.body = {
+      data: { list },
+    };
+  }
+
+  // 发布动态接口（拼团）
+  async add() {
+    const { ctx } = this;
+    const user_id = ctx.state.user.user_id;
+    const reqData = ctx.request.body;
+
+    if (!reqData.title) { this.ctx.throw('标题不能为空'); }
+    if (!reqData.content) { this.ctx.throw('内容描述不能为空'); }
+    if (!reqData.show_type) { this.ctx.throw('可见类型不能为空'); }
+    if (!reqData.closing_date) { this.ctx.throw('拼团截止日期不能为空'); }
+    if (!reqData.goods) { this.ctx.throw('商品信息不能为空'); }
+
+    const content_id = await ctx.service.content.pack.add(user_id, reqData);
+    if (content_id) {
+      ctx.body = {
+        data: { content_id },
+      };
+    }
+  }
+
+  // 编辑拼团
+  async edit() {
+    const { ctx } = this;
+    const user_id = ctx.state.user.user_id;
+    const reqData = ctx.request.body;
+
+    if (!reqData.content_id) { this.ctx.throw('动态ID不能为空'); }
+    if (!reqData.title) { this.ctx.throw('标题不能为空'); }
+    if (!reqData.content) { this.ctx.throw('内容描述不能为空'); }
+    if (!reqData.show_type) { this.ctx.throw('可见类型不能为空'); }
+    if (!reqData.closing_date) { this.ctx.throw('拼团截止日期不能为空'); }
+    if (!reqData.goods) { this.ctx.throw('商品信息不能为空'); }
+
+    const result = await ctx.service.content.pack.edit(user_id, reqData);
+    if (result) {
+      ctx.body = {
+        data: { },
+      };
+    }
+  }
 }
 
 module.exports = PackController;

@@ -40,6 +40,16 @@ class CommonService extends Service {
     return list;
   }
 
+  // 获取特长爱好列表
+  async getKindList(type_id) {
+    const results = await this.app.mysql.select(this.app.config.dbprefix + 'kind', {
+      where: { type_id, state: 1 },
+      columns: [ 'district_id', 'name' ],
+      orders: [[ 'sort', 'desc' ], [ 'kind_id', 'ASC' ]],
+    });
+    return results;
+  }
+
   //   根据id获取某条小区数据
   async getDistById(district_id) {
     const result = await this.app.mysql.get(this.app.config.dbprefix + 'district', { district_id });
@@ -161,19 +171,37 @@ class CommonService extends Service {
     const order = orderArr.toString();
     const rand = Math.floor(Math.random() * (999 - 111 + 1) + 111).toString();
 
-    const date = new Date().getTime();
-    const formatArr = [
-      date.getFullYear().toString(),
-      (date.getMonth() + 1).toString(),
-      date.getDate().toString(),
-      date.getHours().toString(),
-      date.getMinutes().toString(),
-      date.getSeconds().toString(),
-    ];
-    const order_no = formatArr.map(formatNumber) + rand + order;
+    const date = new Date();
+    const year = date.getFullYear();
+    const month = date.getMonth() + 1;
+    const day = date.getDate();
+    const hour = date.getHours();
+    const minute = date.getMinutes();
+    const second = date.getSeconds();
+    const formatArr = [ year, month, day, hour, minute, second ];
+    const order_no = formatArr.map(formatNumber).toString().replace(/,/g, '') + rand + order;
     return order_no;
   }
 
+  async upload(user_id, src, imgsize) {
+    const date_now = this.ctx.service.base.fromatDate(new Date().getTime());
+
+    const uploadImg = await this.app.mysql.insert(this.app.config.dbprefix + 'upload_file_record', {
+      type_id: 2,
+      user_id,
+      src,
+      img_width: imgsize.width,
+      img_height: imgsize.height,
+      add_time: date_now,
+    });
+    if (uploadImg) {
+      return {
+        id: uploadImg.insertId,
+        src: this.app.config.publicAdd + src,
+      };
+    }
+    this.ctx.throw('添加失败');
+  }
 }
 
 module.exports = CommonService;
