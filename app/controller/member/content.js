@@ -9,8 +9,6 @@ class ContentController extends Controller {
     const user_id = ctx.state.user.user_id;
     const reqData = ctx.request.body;
 
-    if (!reqData.user_id) { this.ctx.throw('无效用户ID类型'); }
-
     const list = await ctx.service.member.content.getListBySelf(user_id, reqData);
 
     ctx.body = {
@@ -23,8 +21,6 @@ class ContentController extends Controller {
     const { ctx } = this;
     const user_id = ctx.state.user.user_id;
     const reqData = ctx.request.body;
-
-    if (!reqData.user_id) { this.ctx.throw('无效用户ID类型'); }
 
     const list = await ctx.service.member.content.getPackListBySelf(user_id, reqData);
 
