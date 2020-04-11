@@ -70,6 +70,7 @@ module.exports = app => {
   router.post('/member/info/edit', app.jwt, controller.member.info.edit);// 1.5.2、 编辑用户信息
   router.post('/member/content/getListBySelf', app.jwt, controller.member.content.getListBySelf);// 1.5.3、 用户发起的动态列表
   router.post('/member/contentPack/getListBySelf', app.jwt, controller.member.content.getPackListBySelf);// 1.5.4、 用户发起的动态列表（拼团）
+  router.post('/member/content/getListByRegist', app.jwt, controller.member.content.getListByRegist);// 1.5.5、 用户参与的动态列表
 
   router.post('/baseData/distList', app.jwt, controller.baseData.distList);// 1.6.1、 获取街道小区列表
 };

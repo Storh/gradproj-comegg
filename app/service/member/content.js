@@ -102,6 +102,37 @@ ORDER BY
 
     return goods;
   }
+
+  async getListByRegist(user_id, reqData) {
+    const content_type = reqData.content_type;
+    const limitrow = await this.ctx.service.common.getPageStyle(reqData);
+    const limit = limitrow.limit;
+
+    const registTable = this.app.config.contentType[content_type - 1].registTable;
+    const sqlstr =
+`SELECT b.content_id,b.type_id,b.title,b.content,b.add_time
+
+FROM ${this.app.config.dbprefix}${registTable} a
+INNER JOIN ${this.app.config.dbprefix}content_record b ON b.content_id = a.content_id
+
+WHERE 1
+AND a.user_id = ${user_id}
+AND a.is_delete = 0
+AND a.state = 1
+AND b.is_delete = 0
+AND b.state = 1
+
+GROUP BY a.content_id
+
+ORDER BY b.content_id DESC
+${limit}`;
+    const results = await this.app.mysql.query(sqlstr);
+    const list = results.map(item => {
+      if (item.add_time) item.add_time = new Date(item.add_time).toLocaleString();
+      return item;
+    });
+    return list;
+  }
 }
 
 module.exports = ContentService;
