@@ -78,5 +78,6 @@ module.exports = app => {
   router.post('/baseData/specialityList', app.jwt, controller.baseData.specialityList);// 1.6.2、 获取职业特长列表
   router.post('/baseData/hobbyList', app.jwt, controller.baseData.hobbyList);// 1.6.3、 获取业余爱好列表
 
+  router.post('/uploadFile/uploadPhoto', controller.baseData.uploadPhoto);// 1.7.1、 上传图片通用接口
 
 };
