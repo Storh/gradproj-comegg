@@ -67,6 +67,7 @@ module.exports = app => {
 
 
   router.post('/member/info/getInfo', app.jwt, controller.member.info.getInfo);// 1.5.1、 获取用户基本信息
+  router.post('/member/info/edit', app.jwt, controller.member.info.edit);// 1.5.2、 编辑用户信息
 
   router.post('/baseData/distList', app.jwt, controller.baseData.distList);// 1.6.1、 获取街道小区列表
 };

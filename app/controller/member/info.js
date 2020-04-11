@@ -58,6 +58,26 @@ class InfoController extends Controller {
     };
   }
 
+  // 编辑用户信息
+  async edit() {
+    const { ctx } = this;
+    const user_id = ctx.state.user.user_id;
+    const reqData = ctx.request.body;// 获取post数据
+
+    if (!reqData.nickname) {
+      this.ctx.throw('姓名不能为空');
+    }
+
+    const updateSuccess = await ctx.service.member.info.edit(user_id, reqData);
+    if (updateSuccess) {
+      ctx.body = {
+        data: {},
+      };
+    } else {
+      this.ctx.throw('提交失败');
+    }
+  }
+
   // 获取通讯录列表
   async addressBookList() {
     const { ctx } = this;
