@@ -58,6 +58,19 @@ class ContentController extends Controller {
       data: { list },
     };
   }
+
+  //   我收藏的动态列表
+  async getCollectList() {
+    const { ctx } = this;
+    const user_id = ctx.state.user.user_id;
+    const reqData = ctx.request.body;
+
+    const list = await ctx.service.member.content.getCollectList(user_id, reqData);
+
+    ctx.body = {
+      data: { list },
+    };
+  }
 }
 
 module.exports = ContentController;

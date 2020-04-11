@@ -212,6 +212,33 @@ AND regist_user_id = ${user_id}`;
 
     return order_amount;
   }
+
+  async getCollectList(user_id, reqData) {
+    const limitrow = await this.ctx.service.common.getPageStyle(reqData);
+    const limit = limitrow.limit;
+
+    const sqlstr =
+    `SELECT b.content_id,b.type_id,b.title,b.content,b.add_time
+
+    FROM ${this.app.config.dbprefix}collect_record a
+    INNER JOIN ${this.app.config.dbprefix}content_record b ON b.content_id = a.rel_id
+
+    WHERE 1
+    AND a.user_id = ${user_id}
+    AND a.collect_state = 1
+    AND b.is_delete = 0
+    AND b.state = 1
+
+    ORDER BY b.content_id DESC
+    ${limit}`;
+
+    const results = await this.app.mysql.query(sqlstr);
+    const list = results.map(item => {
+      if (item.add_time) item.add_time = new Date(item.add_time).toLocaleString();
+      return item;
+    });
+    return list;
+  }
 }
 
 module.exports = ContentService;
