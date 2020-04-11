@@ -12,7 +12,14 @@ class BaseDataController extends Controller {
   }
   async specialityList() {
     const { ctx } = this;
-    const list = await ctx.service.baseData.specialityList(1);
+    const list = await ctx.service.common.specialityList(1);
+    ctx.body = {
+      data: { list },
+    };
+  }
+  async hobbyList() {
+    const { ctx } = this;
+    const list = await ctx.service.common.specialityList(2);
     ctx.body = {
       data: { list },
     };
