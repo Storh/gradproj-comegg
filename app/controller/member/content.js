@@ -43,6 +43,21 @@ class ContentController extends Controller {
       data: { list },
     };
   }
+
+  //   用户参与的动态列表（拼团）
+  async getPackListByRegist() {
+    const { ctx } = this;
+    const user_id = ctx.state.user.user_id;
+    const reqData = ctx.request.body;
+
+    if (!reqData.content_type) { this.ctx.throw('内容类型不能为空'); }
+
+    const list = await ctx.service.member.content.getListByRegist(user_id, reqData);
+
+    ctx.body = {
+      data: { list },
+    };
+  }
 }
 
 module.exports = ContentController;

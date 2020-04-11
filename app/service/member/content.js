@@ -51,7 +51,7 @@ class ContentService extends Service {
     const results = await this.app.mysql.query(sqlstr);
     const list = results.map(async item => {
       if (item.add_time) item.add_time = new Date(item.add_time).toLocaleString();
-      item.good = await this.getGoodsListAllById(user_id, item.content_id);
+      item.goods = await this.getGoodsListAllById(user_id, item.content_id);
       item.is_end = new Date(item.closing_date).getTime() - new Date().getTime() > 0 ? 0 : 1;
       return item;
     });
@@ -132,6 +132,85 @@ ${limit}`;
       return item;
     });
     return list;
+  }
+
+  async getPackListByRegist(user_id, reqData) {
+    const limitrow = await this.ctx.service.common.getPageStyle(reqData);
+    const limit = limitrow.limit;
+
+    const sqlstr =
+    `SELECT b.content_id,b.title,
+    c.closing_date
+
+    FROM ${this.app.config.dbprefix}pack_regist a
+    INNER JOIN ${this.app.config.dbprefix}content_record b ON b.content_id = a.content_id
+    INNER JOIN ${this.app.config.dbprefix}pack_content c ON c.content_id = a.content_id
+
+    WHERE 1
+    AND a.user_id = ${user_id}
+
+    GROUP BY a.content_id
+
+    ORDER BY b.content_id DESC
+    ${limit}`;
+
+    const results = await this.app.mysql.query(sqlstr);
+    const list = results.map(async item => {
+      if (item.add_time) item.add_time = new Date(item.add_time).toLocaleString();
+      item.goods = await this.getGoodsBuyListById(user_id, item.content_id);
+      item.is_end = new Date(item.closing_date).getTime() - new Date().getTime() > 0 ? 0 : 1;
+      item.order_amount = this.getRegistOrderAmountById(user_id, item.content_id);
+      return item;
+    });
+    return list;
+  }
+
+  async getGoodsBuyListById(user_id, content_id) {
+    const sqlstr =
+`SELECT
+t.goods_id, t.goods_name, t.goods_specs, t.goods_price,
+SUM(t.goods_number) AS buy_number
+FROM
+(
+SELECT
+    a.goods_id,
+    a.goods_name,
+    a.goods_specs,
+    a.goods_price,
+    a.goods_number
+FROM
+    ${this.app.config.dbprefix}order_goods a
+    INNER JOIN ${this.app.config.dbprefix}order_info b ON b.order_id = a.order_id
+WHERE
+    1
+    AND a.content_id = ${content_id}
+    AND a.regist_user_id = ${user_id}
+    AND b.order_status IN (1,2)
+) t
+GROUP BY
+t.goods_id
+ORDER BY
+t.goods_id ASC`;
+
+    const goods = await this.app.mysql.query(sqlstr);
+
+    return goods;
+  }
+
+  async getRegistOrderAmountById(user_id, content_id) {
+    const sqlstr =
+`SELECT SUM(order_amount) AS order_amount
+FROM ${this.app.config.dbprefix}order_info
+WHERE 1
+AND order_status IN (1,2)
+AND content_id = ${content_id}
+AND regist_user_id = ${user_id}`;
+
+    const results = await this.app.mysql.query(sqlstr);
+    const result = JSON.parse(JSON.stringify(results[0]));
+    const order_amount = result.order_amount ? result.order_amount : 0;
+
+    return order_amount;
   }
 }
 
