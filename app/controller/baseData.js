@@ -10,6 +10,13 @@ class BaseDataController extends Controller {
       data: { list },
     };
   }
+  async specialityList() {
+    const { ctx } = this;
+    const list = await ctx.service.baseData.specialityList(1);
+    ctx.body = {
+      data: { list },
+    };
+  }
 }
 
 module.exports = BaseDataController;

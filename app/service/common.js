@@ -40,6 +40,16 @@ class CommonService extends Service {
     return list;
   }
 
+  // 获取特长爱好列表
+  async getKindList(type_id) {
+    const results = await this.app.mysql.select(this.app.config.dbprefix + 'kind', {
+      where: { type_id, state: 1 },
+      columns: [ 'district_id', 'name' ],
+      orders: [[ 'sort', 'desc' ], [ 'kind_id', 'ASC' ]],
+    });
+    return results;
+  }
+
   //   根据id获取某条小区数据
   async getDistById(district_id) {
     const result = await this.app.mysql.get(this.app.config.dbprefix + 'district', { district_id });

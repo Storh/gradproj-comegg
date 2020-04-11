@@ -75,4 +75,5 @@ module.exports = app => {
   router.post('/member/collect/getList', app.jwt, controller.member.content.getCollectList);// 1.5.7、 我收藏的动态列表
 
   router.post('/baseData/distList', app.jwt, controller.baseData.distList);// 1.6.1、 获取街道小区列表
+  router.post('/baseData/specialityList', app.jwt, controller.baseData.specialityList);// 1.6.2、 获取职业特长列表
 };
