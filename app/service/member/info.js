@@ -77,8 +77,8 @@ class InfoService extends Service {
           name_first_letter: await ctx.service.login.getNameFirstCharter(nickname),
           sex,
           personal_signature,
-          speciality: specialityArr.tostring(),
-          hobby: hobbyArr.tostring(),
+          speciality: specialityArr.toString(),
+          hobby: hobbyArr.toString(),
           info_last_modify_time: date_now,
         },
         {
