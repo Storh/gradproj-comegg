@@ -89,7 +89,7 @@ class MainController extends Controller {
     if (!reqData.content_id) {
       this.ctx.throw('动态ID不能为空');
     }
-    if (!reqData.collect_state) {
+    if (!('collect_state' in reqData)) {
       this.ctx.throw('收藏状态不能为空');
     }
 
