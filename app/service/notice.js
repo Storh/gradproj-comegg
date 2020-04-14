@@ -50,7 +50,6 @@ class NoticeService extends Service {
         where: {
           id,
           receive_user_id: user_id,
-          read_state: 0,
         } });
     if (result.affectedRows === 1) return true;
   }
