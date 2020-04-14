@@ -32,7 +32,7 @@ class NoticeService extends Service {
     ${limit}`;
     const results = await this.app.mysql.query(sql);
     const list = results.map(item => {
-      if (item.headimgurl.length < 100) item.headimgurl = this.app.config.publicAdd + item.headimgurl;
+      if (item.headimgurl && item.headimgurl.length < 100) item.headimgurl = this.app.config.publicAdd + item.headimgurl;
       if (item.add_time) item.add_time = new Date(item.add_time).toLocaleString();
       return item;
     });
@@ -50,13 +50,12 @@ class NoticeService extends Service {
         where: {
           id,
           receive_user_id: user_id,
-          read_state: 0,
         } });
     if (result.affectedRows === 1) return true;
   }
 
   async getDetailById(notice_id) {
-    const inforow = await this.app.mysql.get(this.app.config.dbprefix + 'notice_record',
+    const inforow = await this.app.mysql.get(this.app.config.dbprefix + 'notice',
       {
         notice_id,
         is_delete: 0,

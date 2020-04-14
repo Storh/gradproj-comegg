@@ -54,16 +54,11 @@ class MainService extends Service {
           return item.id;
         });
         await addmain.update(app.config.dbprefix + 'upload_file_record',
-          {
-            rel_id: content_id,
-          },
-          {
+          { rel_id: content_id }, {
             where: {
               type_id: uploadType,
               user_id,
-              rel_id: 0,
-              file_id: photoIdArr,
-            },
+              file_id: photoIdArr },
           });
       }
       return true;
@@ -151,7 +146,6 @@ AND file_id NOT IN (${photoIdArr.toString()})`;
             where: {
               type_id: uploadType,
               user_id,
-              rel_id: 0,
               file_id: photoIdArr,
             },
           });
@@ -292,13 +286,17 @@ AND file_id NOT IN (${photoIdArr.toString()})`;
 
     switch (reqData.district_type) {
       case 1:
-        sql_district_type = ' AND a.district_id = (SELECT district_id FROM ' + this.app.config.dbprefix + 'user_profile WHERE user_id = ' + user_id + ')';
+        sql_district_type = ` AND a.district_id = (SELECT district_id FROM ${this.app.config.dbprefix}user_profile WHERE user_id = ${user_id})`;
         break;
       case 2:
-        sql_district_type = 'AND FIND_IN_SET(a.district_id' +
-          '(SELECT GROUP_CONCAT(district_id) FROM ' + this.app.config.dbprefix + 'district WHERE is_delete = 0 AND state = 1' +
-          'AND parent_id = (SELECT parent_id FROM ' + this.app.config.dbprefix + 'district WHERE district_id = (SELECT district_id FROM ' + this.app.config.dbprefix + 'user_profile WHERE user_id = ' + user_id + '))))' +
-          'AND a.show_type = 2';
+        sql_district_type =
+        `
+        AND FIND_IN_SET(a.district_id,
+        (SELECT GROUP_CONCAT(district_id) FROM ${this.app.config.dbprefix}district WHERE is_delete = 0 AND state = 1
+        AND parent_id = (SELECT parent_id FROM ${this.app.config.dbprefix}district WHERE district_id = (SELECT district_id FROM ${this.app.config.dbprefix}user_profile WHERE user_id = ${user_id})))
+        )
+        AND a.show_type = 2
+        `;
         break;
       default:
         sql_district_type = '';

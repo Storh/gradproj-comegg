@@ -6,7 +6,7 @@ class ContentController extends Controller {
 //    用户发起的动态列表
   async getListBySelf() {
     const { ctx } = this;
-    const user_id = ctx.state.user.user_id;
+    const user_id = ctx.request.body.user_id ? ctx.request.body.user_id : ctx.state.user.user_id;
     const reqData = ctx.request.body;
 
     const list = await ctx.service.member.content.getListBySelf(user_id, reqData);

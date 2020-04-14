@@ -428,7 +428,6 @@ ORDER BY
             where: {
               type_id: uploadType,
               user_id,
-              rel_id: 0,
               file_id: photoIdArr,
             },
           });
@@ -540,7 +539,6 @@ ORDER BY
           where: {
             type_id: uploadType,
             user_id,
-            rel_id: 0,
             file_id: photoIdArr,
           },
         });

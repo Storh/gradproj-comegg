@@ -123,7 +123,6 @@ class ActivityService extends Service {
             where: {
               type_id: uploadType,
               user_id,
-              rel_id: 0,
               file_id: photoIdArr,
             },
           });
@@ -227,7 +226,6 @@ AND file_id NOT IN (${photoIdArr.toString()})`;
             where: {
               type_id: uploadType,
               user_id,
-              rel_id: 0,
               file_id: photoIdArr,
             },
           });

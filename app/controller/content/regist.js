@@ -9,7 +9,7 @@ class RegistController extends Controller {
     const user_id = ctx.state.user.user_id;
     const reqData = ctx.request.body;
 
-    if (!reqData.review_id) {
+    if (!reqData.regist_id) {
       this.ctx.throw('评论记录ID不能为空');
     }
     if (!reqData.content_type_id) {
@@ -21,10 +21,10 @@ class RegistController extends Controller {
       if (righttype === -1) this.ctx.throw('内容类型错误');
     }
 
-    if (!reqData.like_state) {
+    if (!('like_state' in reqData)) {
       this.ctx.throw('点赞状态不能为空');
     }
-    const results = await ctx.service.content.review.setLike(user_id, reqData.review_id, Number(reqData.like_state), reqData.content_type_id);
+    const results = await ctx.service.content.regist.setLike(user_id, reqData.regist_id, Number(reqData.like_state), reqData.content_type_id);
     if (results) {
       ctx.body = {
         data: {},

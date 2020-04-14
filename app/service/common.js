@@ -44,7 +44,7 @@ class CommonService extends Service {
   async getKindList(type_id) {
     const results = await this.app.mysql.select(this.app.config.dbprefix + 'kind', {
       where: { type_id, state: 1 },
-      columns: [ 'district_id', 'name' ],
+      columns: [ 'kind_id', 'kind_name' ],
       orders: [[ 'sort', 'desc' ], [ 'kind_id', 'ASC' ]],
     });
     return results;
@@ -60,7 +60,7 @@ class CommonService extends Service {
   async getUserSpecHobyById(user_id, type) {
     let type_id;
     if (type === 'speciality') { type_id = 1; }
-    if (type === 'hobby') { type_id = 1; }
+    if (type === 'hobby') { type_id = 2; }
     const resultstr = await this.app.mysql.select(this.app.config.dbprefix + 'kind_relation', {
       where: { rel_id: user_id, type_id },
       columns: [ 'kind_id', 'kind_name' ],
