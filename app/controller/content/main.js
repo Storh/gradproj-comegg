@@ -53,7 +53,7 @@ class MainController extends Controller {
 
     const images = await ctx.service.content.main.getPhotos(content_id);
     data.images = images;
-    data.add_time = new Date(data.add_time).toLocaleString();
+    data.add_time = this.ctx.service.base.fromatDate(new Date(data.add_time).getTime());
     ctx.body = {
       data,
     };

@@ -33,7 +33,7 @@ class NoticeService extends Service {
     const results = await this.app.mysql.query(sql);
     const list = results.map(item => {
       if (item.headimgurl && item.headimgurl.length < 100) item.headimgurl = this.app.config.publicAdd + item.headimgurl;
-      if (item.add_time) item.add_time = new Date(item.add_time).toLocaleString();
+      if (item.add_time) item.add_time = this.ctx.service.base.fromatDate(new Date(item.add_time).getTime());
       return item;
     });
     return list;

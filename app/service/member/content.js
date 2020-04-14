@@ -22,7 +22,7 @@ class ContentService extends Service {
     ${limit}`;
     const results = await this.app.mysql.query(sqlstr);
     const list = results.map(item => {
-      if (item.add_time) item.add_time = new Date(item.add_time).toLocaleString();
+      if (item.add_time) item.add_time = this.ctx.service.base.fromatDate(new Date(item.add_time).getTime());
       return item;
     });
     return list;
@@ -50,7 +50,7 @@ class ContentService extends Service {
 
     const results = await this.app.mysql.query(sqlstr);
     const list = results.map(async item => {
-      if (item.add_time) item.add_time = new Date(item.add_time).toLocaleString();
+      if (item.add_time) item.add_time = this.ctx.service.base.fromatDate(new Date(item.add_time).getTime());
       item.goods = await this.getGoodsListAllById(user_id, item.content_id);
       item.is_end = new Date(item.closing_date).getTime() - new Date().getTime() > 0 ? 0 : 1;
       return item;
@@ -128,7 +128,7 @@ ORDER BY b.content_id DESC
 ${limit}`;
     const results = await this.app.mysql.query(sqlstr);
     const list = results.map(item => {
-      if (item.add_time) item.add_time = new Date(item.add_time).toLocaleString();
+      if (item.add_time) item.add_time = this.ctx.service.base.fromatDate(new Date(item.add_time).getTime());
       return item;
     });
     return list;
@@ -156,7 +156,7 @@ ${limit}`;
 
     const results = await this.app.mysql.query(sqlstr);
     const list = results.map(async item => {
-      if (item.add_time) item.add_time = new Date(item.add_time).toLocaleString();
+      if (item.add_time) item.add_time = this.ctx.service.base.fromatDate(new Date(item.add_time).getTime());
       item.goods = await this.getGoodsBuyListById(user_id, item.content_id);
       item.is_end = new Date(item.closing_date).getTime() - new Date().getTime() > 0 ? 0 : 1;
       item.order_amount = this.getRegistOrderAmountById(user_id, item.content_id);
@@ -234,7 +234,7 @@ AND regist_user_id = ${user_id}`;
 
     const results = await this.app.mysql.query(sqlstr);
     const list = results.map(item => {
-      if (item.add_time) item.add_time = new Date(item.add_time).toLocaleString();
+      if (item.add_time) item.add_time = this.ctx.service.base.fromatDate(new Date(item.add_time).getTime());
       return item;
     });
     return list;
