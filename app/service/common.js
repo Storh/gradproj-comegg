@@ -44,7 +44,7 @@ class CommonService extends Service {
   async getKindList(type_id) {
     const results = await this.app.mysql.select(this.app.config.dbprefix + 'kind', {
       where: { type_id, state: 1 },
-      columns: [ 'district_id', 'name' ],
+      columns: [ 'kind_id', 'kind_name' ],
       orders: [[ 'sort', 'desc' ], [ 'kind_id', 'ASC' ]],
     });
     return results;
