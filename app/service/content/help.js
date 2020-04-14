@@ -101,11 +101,10 @@ class HelpService extends Service {
         reply_time: date_now,
       },
       { where: { regist_id } });
-
     if (replyinfo) {
       // 通知
       this.registReplyPostNotice(user_id, content_id, regist_id, receive_user_id, content_type, reply_text);
-      return replyinfo.insertId;
+      return replyinfo.affectedRows;
     }
     this.ctx.throw('提交失败');
   }
