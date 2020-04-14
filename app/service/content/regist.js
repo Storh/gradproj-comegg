@@ -78,7 +78,7 @@ class RegistService extends Service {
           const sqlstr =
               `UPDATE ${app.config.dbprefix + registTable}
               SET like_num = like_num + (${like_num_offset})
-              WHERE review_id = ${regist_id}`;
+              WHERE regist_id = ${regist_id}`;
           await sqlrevsetlike.query(sqlstr);
         }
       }
