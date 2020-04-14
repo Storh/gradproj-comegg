@@ -55,7 +55,7 @@ class NoticeService extends Service {
   }
 
   async getDetailById(notice_id) {
-    const inforow = await this.app.mysql.get(this.app.config.dbprefix + 'notice_record',
+    const inforow = await this.app.mysql.get(this.app.config.dbprefix + 'notice',
       {
         notice_id,
         is_delete: 0,
