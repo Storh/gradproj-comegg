@@ -16,8 +16,10 @@ class PhoneLoginController extends Controller {
 
   async login() {
     const { ctx, app } = this;
-    // const abody = ctx.state.user;
+
+    const abody = app.config.jwt.secret;
     // console.log(app.config.dbprefix);
+
     const token = app.jwt.sign({ user_id: 1 }, app.config.jwt.secret, { expiresIn: '3 days' });
     // app.jwt.sign({ foo: 'bar' }, app.config.jwt.secret, { expiresIn: '3 days' });
     // const token = app.jwt.sign({ foo: 'bar' }, app.config.jwt.secret, { expiresIn: 10 });
@@ -26,18 +28,18 @@ class PhoneLoginController extends Controller {
 
     // const result = await this.app.mysql.get(this.app.config.dbprefix + 'user_profile', { user_id: 369, state: 1 });
     // const resultarr = [ result ];
-    const resultarr = await this.app.mysql.select(app.config.dbprefix + 'upload_file_record', {
-      columns: [ 'src' ],
-    });
-    const resultmap = resultarr.map(item => {
-      if (item.src) {
-        item.src = 'http://www.chinaclick.com.cn/ailin/' + item.src;
-      }
-      return item.src;
-    });
-    const str = resultmap.toString();
-    const link = str.replace(/,/g, `
-    `);
+    // const resultarr = await this.app.mysql.select(app.config.dbprefix + 'upload_file_record', {
+    //   columns: [ 'src' ],
+    // });
+    // const resultmap = resultarr.map(item => {
+    //   if (item.src) {
+    //     item.src = 'http://www.chinaclick.com.cn/ailin/' + item.src;
+    //   }
+    //   return item.src;
+    // });
+    // const str = resultmap.toString();
+    // const link = str.replace(/,/g, `
+    // `);
 
     // const resultmap = resultarr.map(item => {
     //   if (item.add_time) {
@@ -47,12 +49,12 @@ class PhoneLoginController extends Controller {
     // });
 
     // console.log(result);
-    const abody = await ctx.service.helper.getNameFirstCharter('W');
+    // const abody = await ctx.service.helper.getNameFirstCharter('W');
     ctx.body = {
       token,
       abody,
       // resultmap,
-      link,
+      // link,
     };
   }
 }
