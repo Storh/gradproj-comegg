@@ -38,7 +38,7 @@ class ReviewController extends Controller {
     if (!reqData.review_id) {
       this.ctx.throw('评论记录ID不能为空');
     }
-    if (!reqData.like_state) {
+    if (!('like_state' in reqData)) {
       this.ctx.throw('点赞状态不能为空');
     }
     const results = await ctx.service.content.review.setLike(user_id, reqData);

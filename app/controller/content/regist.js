@@ -21,7 +21,7 @@ class RegistController extends Controller {
       if (righttype === -1) this.ctx.throw('内容类型错误');
     }
 
-    if (!reqData.like_state) {
+    if (!('like_state' in reqData)) {
       this.ctx.throw('点赞状态不能为空');
     }
     const results = await ctx.service.content.review.setLike(user_id, reqData.review_id, Number(reqData.like_state), reqData.content_type_id);

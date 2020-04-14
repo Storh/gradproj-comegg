@@ -68,7 +68,7 @@ class MainController extends Controller {
     if (!reqData.content_id) {
       this.ctx.throw('动态ID不能为空');
     }
-    if (!reqData.like_state) {
+    if (!('like_state' in reqData)) {
       this.ctx.throw('点赞状态不能为空');
     }
 
