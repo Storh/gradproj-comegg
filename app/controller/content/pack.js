@@ -30,9 +30,11 @@ class PackController extends Controller {
 
     const images = await ctx.service.content.main.getPhotos(content_id);
     data.images = images;
-    data.add_time = new Date(data.add_time).toLocaleString();
+    data.add_time = this.ctx.service.base.fromatDate(new Date(data.add_time).getTime());
+    // data.add_time = new Date(data.add_time).toLocaleString();
     data.is_end = new Date(data.closing_date).getTime() - new Date().getTime() > 0 ? 0 : 1;
-    data.closing_date = new Date(data.closing_date).toLocaleString();
+    data.closing_date = this.ctx.service.base.fromatDate(new Date(data.closing_date).getTime());
+    // data.closing_date = new Date(data.closing_date).toLocaleString();
     ctx.body = {
       data,
     };
