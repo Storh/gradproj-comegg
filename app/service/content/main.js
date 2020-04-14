@@ -53,17 +53,13 @@ class MainService extends Service {
         const photoIdArr = images.map(item => {
           return item.id;
         });
+        console.log({ rel_id: content_id });
         await addmain.update(app.config.dbprefix + 'upload_file_record',
-          {
-            rel_id: content_id,
-          },
-          {
+          { rel_id: content_id }, {
             where: {
               type_id: uploadType,
               user_id,
-              rel_id: 0,
-              file_id: photoIdArr,
-            },
+              file_id: photoIdArr },
           });
       }
       return true;
