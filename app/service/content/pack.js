@@ -303,7 +303,7 @@ ORDER BY
     t.goods_id ASC`;
     const results = await this.app.mysql.query(sqlstr);
 
-    const list = results.map(async item => {
+    const list = results.map(item => {
       const used_number = item.used_number ? item.used_number : 0;
       item.remaining_number = item.goods_number - used_number;
       delete item.is_delete;
@@ -352,8 +352,8 @@ GROUP BY
 ORDER BY
     a.goods_id ASC`;
     const results = await this.app.mysql.query(sqlstr);
-
-    const list = results.map(async item => {
+    console.log(results);
+    const list = results.map(item => {
       const used_number = item.used_number ? item.used_number : 0;
       item.remaining_number = item.goods_number - used_number;
       delete item.used_number;
@@ -406,7 +406,7 @@ ORDER BY
       // 关键字
       if (keyword) {
         const keywordArr = keyword.split(',');
-        keywordArr.map(async aword => {
+        keywordArr.map(aword => {
           addmain.insert(app.config.dbprefix + 'content_keyword', {
             content_id,
             keyword: aword,
@@ -434,7 +434,7 @@ ORDER BY
       }
 
       // 商品
-      goods.map(async gooditem => {
+      goods.map(gooditem => {
         addmain.insert(app.config.dbprefix + 'goods', {
           user_id,
           content_id,
@@ -503,7 +503,7 @@ ORDER BY
 
       if (keyword) {
         const keywordArr = keyword.split(',');
-        keywordArr.map(async aword => {
+        keywordArr.map(aword => {
           addmain.insert(app.config.dbprefix + 'content_keyword', {
             content_id,
             keyword: aword,
@@ -527,7 +527,7 @@ ORDER BY
   AND file_id NOT IN (${photoIdArr.toString()})`;
         const dellist = await addmain.query(delstr);
 
-        dellist.map(async item => {
+        dellist.map(item => {
           addmain.delete(app.config.dbprefix + 'upload_file_record', {
             file_id: item.file_id,
           });

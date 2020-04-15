@@ -101,7 +101,7 @@ class ActivityService extends Service {
       // 关键字
       if (keyword) {
         const keywordArr = keyword.split(',');
-        keywordArr.map(async aword => {
+        keywordArr.map(aword => {
           addmain.insert(app.config.dbprefix + 'content_keyword', {
             content_id,
             keyword: aword,
@@ -188,7 +188,7 @@ class ActivityService extends Service {
 
       if (keyword) {
         const keywordArr = keyword.split(',');
-        keywordArr.map(async aword => {
+        keywordArr.map(aword => {
           addmain.insert(app.config.dbprefix + 'content_keyword', {
             content_id,
             keyword: aword,
@@ -212,7 +212,7 @@ AND rel_id=${content_id}
 AND file_id NOT IN (${photoIdArr.toString()})`;
         const dellist = await addmain.query(delstr);
 
-        dellist.map(async item => {
+        dellist.map(item => {
           addmain.delete(app.config.dbprefix + 'upload_file_record', {
             file_id: item.file_id,
           });
