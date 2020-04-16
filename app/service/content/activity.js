@@ -267,7 +267,7 @@ AND is_delete = 0
 AND state = 1
 AND content_id = ${reqData.content_id}`;
     const row = await this.app.mysql.query(limirsql);
-    const limitusernum = JSON.parse(JSON.stringify(row)[0]);
+    const limitusernum = JSON.parse(JSON.stringify(row[0]));
     if (limitusernum.nums + 1 > num_upper_limit) this.ctx.throw('很抱歉，该活动已达参与人数上限，谢谢您的参与，请关注下次活动');
 
     const remark = reqData.remark;
