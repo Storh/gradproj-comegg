@@ -518,7 +518,6 @@ ORDER BY
         });
       });
 
-
       // 图片
       if (images) {
         const uploadType = 2;// 动态内容图片
@@ -542,20 +541,16 @@ ORDER BY
             file_id: delarr,
           });
         }
-
-        addmain.update(app.config.dbprefix + 'upload_file_record', {
-          rel_id: content_id,
-        }, {
-          where: {
+        addmain.update(app.config.dbprefix + 'upload_file_record',
+          { rel_id: content_id },
+          { where: {
             type_id: uploadType,
             user_id,
-            file_id: photoIdArr,
-          },
-        });
+            file_id: photoIdArr } }
+        );
       }
 
       // 商品
-
       const goodsIdArr = await this.getGoodsIdArr(user_id, content_id, goods);
       // 删除用户前端删除的商品
       const delgoodstr =
