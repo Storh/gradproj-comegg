@@ -535,11 +535,11 @@ ORDER BY
   AND rel_id=${content_id}
   AND file_id NOT IN (${photoIdArr.toString()})`;
         const dellist = await addmain.query(delstr);
-
-        dellist.forEach(item => {
-          addmain.delete(app.config.dbprefix + 'upload_file_record', {
-            file_id: item.file_id,
-          });
+        const delarr = dellist.map(item => {
+          return item.file_id;
+        });
+        addmain.delete(app.config.dbprefix + 'upload_file_record', {
+          file_id: delarr,
         });
 
         await addmain.update(app.config.dbprefix + 'upload_file_record', {
@@ -555,7 +555,7 @@ ORDER BY
 
       // 商品
 
-      const goodsIdArr = goods.map(async gooditem => {
+      const goodsIdArr = await goods.map(async gooditem => {
         if (gooditem.goods_id) {
           addmain.update(app.config.dbprefix + 'goods', {
             goods_name: gooditem.goods_name,
