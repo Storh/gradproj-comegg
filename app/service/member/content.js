@@ -42,7 +42,7 @@ class ContentService extends Service {
     WHERE 1
     AND a.is_delete = 0
     AND a.state = 1
-    AND a.type_id = ${reqData.content_type}
+    AND a.type_id = 5
     AND a.user_id = ${user_id}
 
     ORDER BY a.content_id DESC
@@ -55,7 +55,7 @@ class ContentService extends Service {
       item.is_end = new Date(item.closing_date).getTime() - new Date().getTime() > 0 ? 0 : 1;
       return item;
     });
-    return list;
+    return await Promise.all(list);
   }
 
   async getGoodsListAllById(user_id, content_id) {
@@ -162,7 +162,7 @@ ${limit}`;
       item.order_amount = this.getRegistOrderAmountById(user_id, item.content_id);
       return item;
     });
-    return list;
+    return await Promise.all(list);
   }
 
   async getGoodsBuyListById(user_id, content_id) {
