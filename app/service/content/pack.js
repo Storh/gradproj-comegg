@@ -415,7 +415,7 @@ ORDER BY
       // 关键字
       if (keyword) {
         const keywordArr = keyword.split(',');
-        keywordArr.map(aword => {
+        keywordArr.forEach(aword => {
           addmain.insert(app.config.dbprefix + 'content_keyword', {
             content_id,
             keyword: aword,
@@ -443,7 +443,7 @@ ORDER BY
       }
 
       // 商品
-      goods.map(gooditem => {
+      goods.forEach(gooditem => {
         addmain.insert(app.config.dbprefix + 'goods', {
           user_id,
           content_id,
@@ -512,7 +512,7 @@ ORDER BY
 
       if (keyword) {
         const keywordArr = keyword.split(',');
-        keywordArr.map(aword => {
+        keywordArr.forEach(aword => {
           addmain.insert(app.config.dbprefix + 'content_keyword', {
             content_id,
             keyword: aword,
@@ -536,7 +536,7 @@ ORDER BY
   AND file_id NOT IN (${photoIdArr.toString()})`;
         const dellist = await addmain.query(delstr);
 
-        dellist.map(item => {
+        dellist.forEach(item => {
           addmain.delete(app.config.dbprefix + 'upload_file_record', {
             file_id: item.file_id,
           });
