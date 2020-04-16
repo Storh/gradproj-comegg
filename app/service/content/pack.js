@@ -59,21 +59,70 @@ class PackService extends Service {
     if (data.headimgurl.length < 100) { data.headimgurl = this.app.config.publicAdd + data.headimgurl; }
     return data;
   }
+  // 查看拼团是否结束
+  async findPackEnd(content_id) {
+    const sqlstr =
+    `SELECT a.content_id, a.user_id, b.closing_date
+  FROM ${this.app.config.dbprefix}content_record a
+  INNER JOIN ${this.app.config.dbprefix}pack_content b ON b.content_id = a.content_id
+  WHERE a.is_delete = 0
+  AND a.state = 1
+  AND a.content_id = ${content_id}`;
+    const results = await this.app.mysql.query(sqlstr);
+    if (!results) this.ctx.throw('该团购活动不存在');
+    return JSON.parse(JSON.stringify(results[0]));
+  }
 
+  async getGoodsAmountNewList(goodsList, content_id) {
+
+    const goods_amount_promise = goodsList.map(async element => {
+      const goods_id = element.goods_id;
+      const buy_number = Number(element.buy_number);
+
+      const getGoods = await this.getGoodsById(content_id, goods_id);
+      if (!getGoods) this.ctx.throw(`${element.goods_name}-${element.goods_specs}不存在`);
+      const goods_name = getGoods.goods_name;
+      const goods_price = getGoods.goods_price;
+      const goods_specs = getGoods.goods_specs;
+      const goods_number = getGoods.goods_number;
+      const used_number = await this.getGoodsNumUsed(goods_id);
+      const enable_number = Number(goods_number) - Number(used_number);
+
+      if (enable_number < buy_number) {
+        this.ctx.throw('库存不足');
+      }
+      return {
+        goods_id,
+        goods_name,
+        goods_price,
+        goods_specs,
+        goods_number: buy_number,
+      };
+    });
+    const goods_amount_arr = await Promise.all(goods_amount_promise);
+    const goods_amount = this.goodsAmount(goods_amount_arr);
+
+    if (goods_amount <= 0) {
+      this.ctx.throw('订单总额必须大于0');
+    }
+    return {
+      goods_amount,
+      goods_amount_arr,
+    };
+  }
+  goodsAmount(list) {
+    let goods_amount = 0;
+    list.forEach(item => {
+      goods_amount += parseInt(Number(item.goods_price) * 100, 10) * item.buy_number;
+    });
+    return goods_amount / 100;
+  }
   async registAdd(user_id, reqData) {
     const { app, ctx } = this;
     const date_now = this.ctx.service.base.fromatDate(new Date().getTime());
 
-    const sqlstr =
-      `SELECT a.content_id, a.user_id, b.closing_date
-    FROM ${this.app.config.dbprefix}content_record a
-    INNER JOIN ${this.app.config.dbprefix}pack_content b ON b.content_id = a.content_id
-    WHERE a.is_delete = 0
-    AND a.state = 1
-    AND a.content_id = ${reqData.content_id}`;
-    const results = await this.app.mysql.query(sqlstr);
-    if (!results) this.ctx.throw('该团购活动不存在');
-    const result = JSON.parse(JSON.stringify(results[0]));
+    // 获取拼团是否结束
+    const result = await this.findPackEnd(reqData.content_id);
     const launch_user_id = result.user_id;
     const closing_date = result.closing_date;
 
@@ -81,75 +130,37 @@ class PackService extends Service {
       this.ctx.throw('很抱歉，该团购活动已结束，请关注下次活动');
     }
 
-    const goods = reqData.goods;
     const consignee = reqData.consignee;
     const mobile = reqData.mobile;
     const address = reqData.address;
     const message = reqData.message;
+    // 获取商品价格和信息
+    const goods_amount_new_list = await this.getGoodsAmountNewList(reqData.goods, reqData.content_id);
 
+    const order_info = await this.app.mysql.insert(this.app.config.dbprefix + 'order_info', {
+      launch_user_id,
+      regist_user_id: user_id,
+      content_id: reqData.content_id,
+      content_type: 5,
+      add_time: date_now,
+      goods_amount: goods_amount_new_list.goods_amount,
+      order_amount: goods_amount_new_list.goods_amount,
+      order_status: 1,
+      consignee,
+      mobile,
+      address,
+      message,
+    });
+    const order_id = order_info.insertId;
+    const order_no = this.ctx.service.common.getOrderNoById(order_id.toString());
 
     const trans_success = await app.mysql.beginTransactionScope(async sqlsetColl => {
-      let goods_amount = 0;// 商品总额
-      const goodsNew = [];// 记录最新的商品信息，用于写入订单表
-
-      goods.forEach(async element => {
-
-        const goods_id = element.goods_id;
-        const buy_number = Number(element.buy_number);
-        if (buy_number <= 0) return false;
-
-        const getGoods = await this.getGoodsById(reqData.content_id, goods_id);
-        if (!getGoods) this.ctx.throw(`${element.goods_name}-${element.goods_specs}不存在`);
-
-        const goods_name = getGoods.goods_name;
-        const goods_price = getGoods.buy_number;
-        const goods_specs = getGoods.goods_specs;
-        const goods_number = getGoods.goods_number;
-        const used_number = await this.getGoodsNumUsed(goods_id);
-        const enable_number = Number(goods_number) - Number(used_number);
-
-        if (enable_number < buy_number) {
-          this.ctx.throw('库存不足');
-        }
-
-        goods_amount += (parseInt(Number(goods_price) * 100, 10) * buy_number);
-
-        goodsNew.push({
-          goods_id,
-          goods_name,
-          goods_price,
-          goods_specs,
-          goods_number,
-        });
-      });
-      if (goods_amount <= 0) {
-        this.ctx.throw('订单总额必须大于0');
-      }
-      goods_amount = goods_amount / 100;
-      const order_info = await sqlsetColl.insert(this.app.config.dbprefix + 'order_info', {
-        launch_user_id,
-        regist_user_id: user_id,
-        content_id: reqData.content_id,
-        content_type: 5,
-        add_time: date_now,
-        goods_amount,
-        order_amount: goods_amount,
-        order_status: 1,
-        consignee,
-        mobile,
-        address,
-        message,
-      });
-      const order_id = order_info.insertId;
-
-      const order_no = await this.ctx.service.common.getOrderNoById(order_id.toString());
-
-      await sqlsetColl.update(app.config.dbprefix + 'order_info',
+      sqlsetColl.update(app.config.dbprefix + 'order_info',
         { order_no },
         { where: { order_id } });
 
       // 记录商品详情
-      goodsNew.forEach(async element => {
+      goods_amount_new_list.goods_amount_arr.forEach(async element => {
         sqlsetColl.insert(this.app.config.dbprefix + 'order_goods', {
           order_id,
           launch_user_id,
@@ -174,7 +185,6 @@ class PackService extends Service {
       const regist_id = pack_ins.insertId;
       return regist_id;
     }, ctx);
-
     if (!trans_success) {
       ctx.throw('操作失败，请重试');
     }
@@ -352,7 +362,6 @@ GROUP BY
 ORDER BY
     a.goods_id ASC`;
     const results = await this.app.mysql.query(sqlstr);
-    console.log(results);
     const list = results.map(item => {
       const used_number = item.used_number ? item.used_number : 0;
       item.remaining_number = item.goods_number - used_number;

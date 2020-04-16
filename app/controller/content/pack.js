@@ -46,7 +46,6 @@ class PackController extends Controller {
     const user_id = ctx.state.user.user_id;
     const reqData = ctx.request.body;
     if (!reqData.content_id) { this.ctx.throw('动态ID不能为空'); }
-    if (!reqData.add_text) { this.ctx.throw('参与内容不能为空'); }
     if (!reqData.goods) { this.ctx.throw('商品信息不能为空'); }
     if (!reqData.consignee) { this.ctx.throw('收货人不能为空'); }
     if (!reqData.mobile) { this.ctx.throw('联系电话不能为空'); }

@@ -157,7 +157,7 @@ class CommonService extends Service {
     return JSON.parse(JSON.stringify(result));
   }
 
-  async getOrderNoById(order_id) {
+  getOrderNoById(order_id) {
     // 订单号order_id的随机数组
     const arr = [ 3, 5, 8, 1, 9, 7, 0, 4, 2, 6 ];
     // 订单号order_id的随机数组位数
