@@ -96,7 +96,7 @@ class PackService extends Service {
         goods_name,
         goods_price,
         goods_specs,
-        goods_number: buy_number,
+        buy_number,
       };
     });
     const goods_amount_arr = await Promise.all(goods_amount_promise);
@@ -110,6 +110,7 @@ class PackService extends Service {
       goods_amount_arr,
     };
   }
+
   goodsAmount(list) {
     let goods_amount = 0;
     list.forEach(item => {
@@ -117,6 +118,7 @@ class PackService extends Service {
     });
     return goods_amount / 100;
   }
+
   async registAdd(user_id, reqData) {
     const { app, ctx } = this;
     const date_now = this.ctx.service.base.fromatDate(new Date().getTime());
@@ -136,7 +138,6 @@ class PackService extends Service {
     const message = reqData.message;
     // 获取商品价格和信息
     const goods_amount_new_list = await this.getGoodsAmountNewList(reqData.goods, reqData.content_id);
-
     const order_info = await this.app.mysql.insert(this.app.config.dbprefix + 'order_info', {
       launch_user_id,
       regist_user_id: user_id,
@@ -171,7 +172,7 @@ class PackService extends Service {
           goods_name: element.goods_name,
           goods_price: element.goods_price,
           goods_specs: element.goods_specs,
-          goods_number: element.goods_number,
+          goods_number: element.buy_number,
         });
       });
 
