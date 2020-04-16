@@ -256,6 +256,7 @@ AND a.launch_user_id = ${user_id}
 
 ORDER BY a.order_id DESC
 ${limit}`;
+
     const results = await this.app.mysql.query(sqlstr);
     const list = results.map(async item => {
       if (item.headimgurl.length < 100) item.headimgurl = this.app.config.publicAdd + item.headimgurl;
@@ -263,7 +264,7 @@ ${limit}`;
       item.goods = await this.getOrderGoodsList(item.order_id);
       return item;
     });
-    return list;
+    return await Promise.all(list);
   }
 
   async getOrderGoodsList(order_id) {
