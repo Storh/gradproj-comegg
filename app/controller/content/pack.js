@@ -24,7 +24,7 @@ class PackController extends Controller {
     if (!reqData.content_id) { this.ctx.throw('动态ID不能为空'); }
 
     const content_id = Number(reqData.content_id);
-    await ctx.service.common.visitRecordAdd(user_id, content_id);
+    ctx.service.common.visitRecordAdd(user_id, content_id);
     const data = await ctx.service.content.pack.getDetailById(user_id, content_id);
     if (!data) { this.ctx.throw('该动态内容不存在'); }
 
