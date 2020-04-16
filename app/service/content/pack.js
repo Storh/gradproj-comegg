@@ -499,26 +499,25 @@ ORDER BY
       // 更新团购内容表
       addmain.update(app.config.dbprefix + 'pack_content', {
         closing_date,
-      }, {
+      },
+      {
         where: {
           content_id,
-        },
-      });
+        } });
 
       // 关键字
-      await addmain.delete(app.config.dbprefix + 'content_keyword', {
+      addmain.delete(app.config.dbprefix + 'content_keyword', {
         content_id,
       });
 
-      if (keyword) {
-        const keywordArr = keyword.split(',');
-        keywordArr.forEach(aword => {
-          addmain.insert(app.config.dbprefix + 'content_keyword', {
-            content_id,
-            keyword: aword,
-          });
+      const keywordArr = keyword.split(',');
+      keywordArr.forEach(aword => {
+        addmain.insert(app.config.dbprefix + 'content_keyword', {
+          content_id,
+          keyword: aword,
         });
-      }
+      });
+
 
       // 图片
       if (images) {
@@ -538,11 +537,13 @@ ORDER BY
         const delarr = dellist.map(item => {
           return item.file_id;
         });
-        addmain.delete(app.config.dbprefix + 'upload_file_record', {
-          file_id: delarr,
-        });
+        if (delarr.length) {
+          addmain.delete(app.config.dbprefix + 'upload_file_record', {
+            file_id: delarr,
+          });
+        }
 
-        await addmain.update(app.config.dbprefix + 'upload_file_record', {
+        addmain.update(app.config.dbprefix + 'upload_file_record', {
           rel_id: content_id,
         }, {
           where: {
@@ -555,32 +556,7 @@ ORDER BY
 
       // 商品
 
-      const goodsIdArr = await goods.map(async gooditem => {
-        if (gooditem.goods_id) {
-          addmain.update(app.config.dbprefix + 'goods', {
-            goods_name: gooditem.goods_name,
-            goods_specs: gooditem.goods_specs,
-            goods_price: gooditem.goods_price,
-            goods_number: gooditem.goods_number,
-          }, {
-            where: {
-              goods_id: gooditem.goods_id,
-              content_id,
-            },
-          });
-          return gooditem.goods_id;
-        }
-        const newgood = await addmain.insert(app.config.dbprefix + 'goods', {
-          user_id,
-          content_id,
-          content_type: 5,
-          goods_name: gooditem.goods_name,
-          goods_specs: gooditem.goods_specs,
-          goods_price: gooditem.goods_price,
-          goods_number: gooditem.goods_number,
-        });
-        return newgood.insertId;
-      });
+      const goodsIdArr = await this.getGoodsIdArr(user_id, content_id, goods);
       // 删除用户前端删除的商品
       const delgoodstr =
   `UPDATE ${app.config.dbprefix}goods
@@ -597,6 +573,37 @@ ORDER BY
     }
     return true;
   }
+
+  async getGoodsIdArr(user_id, content_id, goods) {
+    const goodsIdArr = goods.map(async gooditem => {
+      if (gooditem.goods_id) {
+        this.app.mysql.update(this.app.config.dbprefix + 'goods', {
+          goods_name: gooditem.goods_name,
+          goods_specs: gooditem.goods_specs,
+          goods_price: gooditem.goods_price,
+          goods_number: gooditem.goods_number,
+        }, {
+          where: {
+            goods_id: gooditem.goods_id,
+            content_id,
+          },
+        });
+        return gooditem.goods_id;
+      }
+      const newgood = await this.app.mysql.insert(this.app.config.dbprefix + 'goods', {
+        user_id,
+        content_id,
+        content_type: 5,
+        goods_name: gooditem.goods_name,
+        goods_specs: gooditem.goods_specs,
+        goods_price: gooditem.goods_price,
+        goods_number: gooditem.goods_number,
+      });
+      return newgood.insertId;
+    });
+    return await Promise.all(goodsIdArr);
+  }
 }
+
 
 module.exports = PackService;
