@@ -49,9 +49,7 @@ class ContentController extends Controller {
     const { ctx } = this;
     const user_id = ctx.state.user.user_id;
     const reqData = ctx.request.body;
-
-    if (!reqData.content_type) { this.ctx.throw('内容类型不能为空'); }
-
+    reqData.content_type = 5;
     const list = await ctx.service.member.content.getListByRegist(user_id, reqData);
 
     ctx.body = {

@@ -25,8 +25,8 @@ class PackService extends Service {
     const results = await this.app.mysql.query(sqlstr);
     const list = results.map(item => {
       if (item.headimgurl.length < 100) item.headimgurl = this.app.config.publicAdd + item.headimgurl;
-      if (item.add_time) item.add_time = new Date(item.add_time).toLocaleString();
-      if (item.reply_time) item.reply_time = new Date(item.reply_time).toLocaleString();
+      if (item.add_time) item.add_time = this.ctx.service.base.fromatDate(new Date(item.add_time).getTime());
+      if (item.reply_time) item.reply_time = this.ctx.service.base.fromatDate(new Date(item.reply_time).getTime());
       return item;
     });
     return list;
@@ -59,21 +59,72 @@ class PackService extends Service {
     if (data.headimgurl.length < 100) { data.headimgurl = this.app.config.publicAdd + data.headimgurl; }
     return data;
   }
+  // 查看拼团是否结束
+  async findPackEnd(content_id) {
+    const sqlstr =
+    `SELECT a.content_id, a.user_id, b.closing_date
+  FROM ${this.app.config.dbprefix}content_record a
+  INNER JOIN ${this.app.config.dbprefix}pack_content b ON b.content_id = a.content_id
+  WHERE a.is_delete = 0
+  AND a.state = 1
+  AND a.content_id = ${content_id}`;
+    const results = await this.app.mysql.query(sqlstr);
+    if (!results) this.ctx.throw('该团购活动不存在');
+    return JSON.parse(JSON.stringify(results[0]));
+  }
+
+  async getGoodsAmountNewList(goodsList, content_id) {
+
+    const goods_amount_promise = goodsList.map(async element => {
+      const goods_id = element.goods_id;
+      const buy_number = Number(element.buy_number);
+
+      const getGoods = await this.getGoodsById(content_id, goods_id);
+      if (!getGoods) this.ctx.throw(`${element.goods_name}-${element.goods_specs}不存在`);
+      const goods_name = getGoods.goods_name;
+      const goods_price = getGoods.goods_price;
+      const goods_specs = getGoods.goods_specs;
+      const goods_number = getGoods.goods_number;
+      const used_number = await this.getGoodsNumUsed(goods_id);
+      const enable_number = Number(goods_number) - Number(used_number);
+
+      if (enable_number < buy_number) {
+        this.ctx.throw('库存不足');
+      }
+      return {
+        goods_id,
+        goods_name,
+        goods_price,
+        goods_specs,
+        buy_number,
+      };
+    });
+    const goods_amount_arr = await Promise.all(goods_amount_promise);
+    const goods_amount = this.goodsAmount(goods_amount_arr);
+
+    if (goods_amount <= 0) {
+      this.ctx.throw('订单总额必须大于0');
+    }
+    return {
+      goods_amount,
+      goods_amount_arr,
+    };
+  }
+
+  goodsAmount(list) {
+    let goods_amount = 0;
+    list.forEach(item => {
+      goods_amount += parseInt(Number(item.goods_price) * 100, 10) * item.buy_number;
+    });
+    return goods_amount / 100;
+  }
 
   async registAdd(user_id, reqData) {
     const { app, ctx } = this;
     const date_now = this.ctx.service.base.fromatDate(new Date().getTime());
 
-    const sqlstr =
-      `SELECT a.content_id, a.user_id, b.closing_date
-    FROM ${this.app.config.dbprefix}content_record a
-    INNER JOIN ${this.app.config.dbprefix}pack_content b ON b.content_id = a.content_id
-    WHERE a.is_delete = 0
-    AND a.state = 1
-    AND a.content_id = ${reqData.content_id}`;
-    const results = await this.app.mysql.query(sqlstr);
-    if (!results) this.ctx.throw('该团购活动不存在');
-    const result = JSON.parse(JSON.stringify(results[0]));
+    // 获取拼团是否结束
+    const result = await this.findPackEnd(reqData.content_id);
     const launch_user_id = result.user_id;
     const closing_date = result.closing_date;
 
@@ -81,75 +132,36 @@ class PackService extends Service {
       this.ctx.throw('很抱歉，该团购活动已结束，请关注下次活动');
     }
 
-    const goods = reqData.goods;
     const consignee = reqData.consignee;
     const mobile = reqData.mobile;
     const address = reqData.address;
     const message = reqData.message;
-
+    // 获取商品价格和信息
+    const goods_amount_new_list = await this.getGoodsAmountNewList(reqData.goods, reqData.content_id);
+    const order_info = await this.app.mysql.insert(this.app.config.dbprefix + 'order_info', {
+      launch_user_id,
+      regist_user_id: user_id,
+      content_id: reqData.content_id,
+      content_type: 5,
+      add_time: date_now,
+      goods_amount: goods_amount_new_list.goods_amount,
+      order_amount: goods_amount_new_list.goods_amount,
+      order_status: 1,
+      consignee,
+      mobile,
+      address,
+      message,
+    });
+    const order_id = order_info.insertId;
+    const order_no = this.ctx.service.common.getOrderNoById(order_id.toString());
 
     const trans_success = await app.mysql.beginTransactionScope(async sqlsetColl => {
-      let goods_amount = 0;// 商品总额
-      const goodsNew = [];// 记录最新的商品信息，用于写入订单表
-
-      goods.forEach(async element => {
-
-        const goods_id = element.goods_id;
-        const buy_number = Number(element.buy_number);
-        if (buy_number <= 0) return false;
-
-        const getGoods = await this.getGoodsById(reqData.content_id, goods_id);
-        if (!getGoods) this.ctx.throw(`${element.goods_name}-${element.goods_specs}不存在`);
-
-        const goods_name = getGoods.goods_name;
-        const goods_price = getGoods.buy_number;
-        const goods_specs = getGoods.goods_specs;
-        const goods_number = getGoods.goods_number;
-        const used_number = await this.getGoodsNumUsed(goods_id);
-        const enable_number = Number(goods_number) - Number(used_number);
-
-        if (enable_number < buy_number) {
-          this.ctx.throw('库存不足');
-        }
-
-        goods_amount += (parseInt(Number(goods_price) * 100, 10) * buy_number);
-
-        goodsNew.push({
-          goods_id,
-          goods_name,
-          goods_price,
-          goods_specs,
-          goods_number,
-        });
-      });
-      if (goods_amount <= 0) {
-        this.ctx.throw('订单总额必须大于0');
-      }
-      goods_amount = goods_amount / 100;
-      const order_info = await sqlsetColl.insert(this.app.config.dbprefix + 'order_info', {
-        launch_user_id,
-        regist_user_id: user_id,
-        content_id: reqData.content_id,
-        content_type: 5,
-        add_time: date_now,
-        goods_amount,
-        order_amount: goods_amount,
-        order_status: 1,
-        consignee,
-        mobile,
-        address,
-        message,
-      });
-      const order_id = order_info.insertId;
-
-      const order_no = await this.ctx.service.common.getOrderNoById(order_id.toString());
-
-      await sqlsetColl.update(app.config.dbprefix + 'order_info',
+      sqlsetColl.update(app.config.dbprefix + 'order_info',
         { order_no },
         { where: { order_id } });
 
       // 记录商品详情
-      goodsNew.forEach(async element => {
+      goods_amount_new_list.goods_amount_arr.forEach(async element => {
         sqlsetColl.insert(this.app.config.dbprefix + 'order_goods', {
           order_id,
           launch_user_id,
@@ -160,7 +172,7 @@ class PackService extends Service {
           goods_name: element.goods_name,
           goods_price: element.goods_price,
           goods_specs: element.goods_specs,
-          goods_number: element.goods_number,
+          goods_number: element.buy_number,
         });
       });
 
@@ -174,7 +186,6 @@ class PackService extends Service {
       const regist_id = pack_ins.insertId;
       return regist_id;
     }, ctx);
-
     if (!trans_success) {
       ctx.throw('操作失败，请重试');
     }
@@ -245,14 +256,15 @@ AND a.launch_user_id = ${user_id}
 
 ORDER BY a.order_id DESC
 ${limit}`;
+
     const results = await this.app.mysql.query(sqlstr);
     const list = results.map(async item => {
       if (item.headimgurl.length < 100) item.headimgurl = this.app.config.publicAdd + item.headimgurl;
-      if (item.add_time) item.add_time = new Date(item.add_time).toLocaleString();
+      if (item.add_time) item.add_time = this.ctx.service.base.fromatDate(new Date(item.add_time).getTime());
       item.goods = await this.getOrderGoodsList(item.order_id);
       return item;
     });
-    return list;
+    return await Promise.all(list);
   }
 
   async getOrderGoodsList(order_id) {
@@ -303,7 +315,7 @@ ORDER BY
     t.goods_id ASC`;
     const results = await this.app.mysql.query(sqlstr);
 
-    const list = results.map(async item => {
+    const list = results.map(item => {
       const used_number = item.used_number ? item.used_number : 0;
       item.remaining_number = item.goods_number - used_number;
       delete item.is_delete;
@@ -352,8 +364,7 @@ GROUP BY
 ORDER BY
     a.goods_id ASC`;
     const results = await this.app.mysql.query(sqlstr);
-
-    const list = results.map(async item => {
+    const list = results.map(item => {
       const used_number = item.used_number ? item.used_number : 0;
       item.remaining_number = item.goods_number - used_number;
       delete item.used_number;
@@ -406,7 +417,7 @@ ORDER BY
       // 关键字
       if (keyword) {
         const keywordArr = keyword.split(',');
-        keywordArr.map(async aword => {
+        keywordArr.forEach(aword => {
           addmain.insert(app.config.dbprefix + 'content_keyword', {
             content_id,
             keyword: aword,
@@ -434,7 +445,7 @@ ORDER BY
       }
 
       // 商品
-      goods.map(async gooditem => {
+      goods.forEach(gooditem => {
         addmain.insert(app.config.dbprefix + 'goods', {
           user_id,
           content_id,
@@ -490,26 +501,24 @@ ORDER BY
       // 更新团购内容表
       addmain.update(app.config.dbprefix + 'pack_content', {
         closing_date,
-      }, {
+      },
+      {
         where: {
           content_id,
-        },
-      });
+        } });
 
       // 关键字
-      await addmain.delete(app.config.dbprefix + 'content_keyword', {
+      addmain.delete(app.config.dbprefix + 'content_keyword', {
         content_id,
       });
 
-      if (keyword) {
-        const keywordArr = keyword.split(',');
-        keywordArr.map(async aword => {
-          addmain.insert(app.config.dbprefix + 'content_keyword', {
-            content_id,
-            keyword: aword,
-          });
+      const keywordArr = keyword.split(',');
+      keywordArr.forEach(aword => {
+        addmain.insert(app.config.dbprefix + 'content_keyword', {
+          content_id,
+          keyword: aword,
         });
-      }
+      });
 
       // 图片
       if (images) {
@@ -526,52 +535,25 @@ ORDER BY
   AND rel_id=${content_id}
   AND file_id NOT IN (${photoIdArr.toString()})`;
         const dellist = await addmain.query(delstr);
-
-        dellist.map(async item => {
-          addmain.delete(app.config.dbprefix + 'upload_file_record', {
-            file_id: item.file_id,
-          });
+        const delarr = dellist.map(item => {
+          return item.file_id;
         });
-
-        await addmain.update(app.config.dbprefix + 'upload_file_record', {
-          rel_id: content_id,
-        }, {
-          where: {
+        if (delarr.length) {
+          addmain.delete(app.config.dbprefix + 'upload_file_record', {
+            file_id: delarr,
+          });
+        }
+        addmain.update(app.config.dbprefix + 'upload_file_record',
+          { rel_id: content_id },
+          { where: {
             type_id: uploadType,
             user_id,
-            file_id: photoIdArr,
-          },
-        });
+            file_id: photoIdArr } }
+        );
       }
 
       // 商品
-
-      const goodsIdArr = goods.map(async gooditem => {
-        if (gooditem.goods_id) {
-          addmain.update(app.config.dbprefix + 'goods', {
-            goods_name: gooditem.goods_name,
-            goods_specs: gooditem.goods_specs,
-            goods_price: gooditem.goods_price,
-            goods_number: gooditem.goods_number,
-          }, {
-            where: {
-              goods_id: gooditem.goods_id,
-              content_id,
-            },
-          });
-          return gooditem.goods_id;
-        }
-        const newgood = await addmain.insert(app.config.dbprefix + 'goods', {
-          user_id,
-          content_id,
-          content_type: 5,
-          goods_name: gooditem.goods_name,
-          goods_specs: gooditem.goods_specs,
-          goods_price: gooditem.goods_price,
-          goods_number: gooditem.goods_number,
-        });
-        return newgood.insertId;
-      });
+      const goodsIdArr = await this.getGoodsIdArr(user_id, content_id, goods);
       // 删除用户前端删除的商品
       const delgoodstr =
   `UPDATE ${app.config.dbprefix}goods
@@ -588,6 +570,37 @@ ORDER BY
     }
     return true;
   }
+
+  async getGoodsIdArr(user_id, content_id, goods) {
+    const goodsIdArr = goods.map(async gooditem => {
+      if (gooditem.goods_id) {
+        this.app.mysql.update(this.app.config.dbprefix + 'goods', {
+          goods_name: gooditem.goods_name,
+          goods_specs: gooditem.goods_specs,
+          goods_price: gooditem.goods_price,
+          goods_number: gooditem.goods_number,
+        }, {
+          where: {
+            goods_id: gooditem.goods_id,
+            content_id,
+          },
+        });
+        return gooditem.goods_id;
+      }
+      const newgood = await this.app.mysql.insert(this.app.config.dbprefix + 'goods', {
+        user_id,
+        content_id,
+        content_type: 5,
+        goods_name: gooditem.goods_name,
+        goods_specs: gooditem.goods_specs,
+        goods_price: gooditem.goods_price,
+        goods_number: gooditem.goods_number,
+      });
+      return newgood.insertId;
+    });
+    return await Promise.all(goodsIdArr);
+  }
 }
+
 
 module.exports = PackService;

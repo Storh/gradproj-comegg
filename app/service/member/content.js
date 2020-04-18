@@ -22,7 +22,7 @@ class ContentService extends Service {
     ${limit}`;
     const results = await this.app.mysql.query(sqlstr);
     const list = results.map(item => {
-      if (item.add_time) item.add_time = new Date(item.add_time).toLocaleString();
+      if (item.add_time) item.add_time = this.ctx.service.base.fromatDate(new Date(item.add_time).getTime());
       return item;
     });
     return list;
@@ -42,7 +42,7 @@ class ContentService extends Service {
     WHERE 1
     AND a.is_delete = 0
     AND a.state = 1
-    AND a.type_id = ${reqData.content_type}
+    AND a.type_id = 5
     AND a.user_id = ${user_id}
 
     ORDER BY a.content_id DESC
@@ -50,12 +50,12 @@ class ContentService extends Service {
 
     const results = await this.app.mysql.query(sqlstr);
     const list = results.map(async item => {
-      if (item.add_time) item.add_time = new Date(item.add_time).toLocaleString();
+      if (item.add_time) item.add_time = this.ctx.service.base.fromatDate(new Date(item.add_time).getTime());
       item.goods = await this.getGoodsListAllById(user_id, item.content_id);
       item.is_end = new Date(item.closing_date).getTime() - new Date().getTime() > 0 ? 0 : 1;
       return item;
     });
-    return list;
+    return await Promise.all(list);
   }
 
   async getGoodsListAllById(user_id, content_id) {
@@ -128,7 +128,7 @@ ORDER BY b.content_id DESC
 ${limit}`;
     const results = await this.app.mysql.query(sqlstr);
     const list = results.map(item => {
-      if (item.add_time) item.add_time = new Date(item.add_time).toLocaleString();
+      if (item.add_time) item.add_time = this.ctx.service.base.fromatDate(new Date(item.add_time).getTime());
       return item;
     });
     return list;
@@ -156,13 +156,13 @@ ${limit}`;
 
     const results = await this.app.mysql.query(sqlstr);
     const list = results.map(async item => {
-      if (item.add_time) item.add_time = new Date(item.add_time).toLocaleString();
+      if (item.add_time) item.add_time = this.ctx.service.base.fromatDate(new Date(item.add_time).getTime());
       item.goods = await this.getGoodsBuyListById(user_id, item.content_id);
       item.is_end = new Date(item.closing_date).getTime() - new Date().getTime() > 0 ? 0 : 1;
       item.order_amount = this.getRegistOrderAmountById(user_id, item.content_id);
       return item;
     });
-    return list;
+    return await Promise.all(list);
   }
 
   async getGoodsBuyListById(user_id, content_id) {
@@ -234,7 +234,7 @@ AND regist_user_id = ${user_id}`;
 
     const results = await this.app.mysql.query(sqlstr);
     const list = results.map(item => {
-      if (item.add_time) item.add_time = new Date(item.add_time).toLocaleString();
+      if (item.add_time) item.add_time = this.ctx.service.base.fromatDate(new Date(item.add_time).getTime());
       return item;
     });
     return list;

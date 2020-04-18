@@ -23,8 +23,8 @@ class ActivityService extends Service {
     const results = await this.app.mysql.query(sqlstr);
     const list = results.map(item => {
       if (item.headimgurl.length < 100) item.headimgurl = this.app.config.publicAdd + item.headimgurl;
-      if (item.add_time) item.add_time = new Date(item.add_time).toLocaleString();
-      if (item.reply_time) item.reply_time = new Date(item.reply_time).toLocaleString();
+      if (item.add_time) item.add_time = this.ctx.service.base.fromatDate(new Date(item.add_time).getTime());
+      if (item.reply_time) item.reply_time = this.ctx.service.base.fromatDate(new Date(item.reply_time).getTime());
       return item;
     });
     return list;
@@ -101,7 +101,7 @@ class ActivityService extends Service {
       // 关键字
       if (keyword) {
         const keywordArr = keyword.split(',');
-        keywordArr.map(async aword => {
+        keywordArr.forEach(aword => {
           addmain.insert(app.config.dbprefix + 'content_keyword', {
             content_id,
             keyword: aword,
@@ -188,7 +188,7 @@ class ActivityService extends Service {
 
       if (keyword) {
         const keywordArr = keyword.split(',');
-        keywordArr.map(async aword => {
+        keywordArr.forEach(aword => {
           addmain.insert(app.config.dbprefix + 'content_keyword', {
             content_id,
             keyword: aword,
@@ -212,7 +212,7 @@ AND rel_id=${content_id}
 AND file_id NOT IN (${photoIdArr.toString()})`;
         const dellist = await addmain.query(delstr);
 
-        dellist.map(async item => {
+        dellist.forEach(item => {
           addmain.delete(app.config.dbprefix + 'upload_file_record', {
             file_id: item.file_id,
           });
@@ -267,7 +267,7 @@ AND is_delete = 0
 AND state = 1
 AND content_id = ${reqData.content_id}`;
     const row = await this.app.mysql.query(limirsql);
-    const limitusernum = JSON.parse(JSON.stringify(row)[0]);
+    const limitusernum = JSON.parse(JSON.stringify(row[0]));
     if (limitusernum.nums + 1 > num_upper_limit) this.ctx.throw('很抱歉，该活动已达参与人数上限，谢谢您的参与，请关注下次活动');
 
     const remark = reqData.remark;

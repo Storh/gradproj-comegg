@@ -98,26 +98,18 @@ class CommonService extends Service {
   //   观看数记录
   async visitRecordAdd(user_id, content_id) {
     const { ctx, app } = this;
-
     const date_now = ctx.service.base.fromatDate(new Date().getTime());
-
-    const visit_success = await app.mysql.beginTransactionScope(async sqlvisit => {
-      // don't commit or rollback by yourself
-      const visit_log = await sqlvisit.insert(this.app.config.dbprefix + 'visit_record', {
-        user_id,
-        rel_id: content_id,
-        add_time: date_now,
-      });
-      if (visit_log) {
-        const sqlstr = 'UPDATE ' + app.config.dbprefix + 'content_record '
-        + 'SET visit_num = visit_num + 1 '
-        + 'WHERE content_id = ' + content_id;
-        await sqlvisit.query(sqlstr);
-        return true;
-      }
-      return false;
-    }, ctx);
-    return visit_success;
+    const visit_log = await app.mysql.insert(this.app.config.dbprefix + 'visit_record', {
+      user_id,
+      rel_id: content_id,
+      add_time: date_now,
+    });
+    if (visit_log) {
+      const sqlstr = 'UPDATE ' + app.config.dbprefix + 'content_record '
+      + 'SET visit_num = visit_num + 1 '
+      + 'WHERE content_id = ' + content_id;
+      app.mysql.query(sqlstr);
+    }
   }
 
   //   分页控制
@@ -157,7 +149,7 @@ class CommonService extends Service {
     return JSON.parse(JSON.stringify(result));
   }
 
-  async getOrderNoById(order_id) {
+  getOrderNoById(order_id) {
     // 订单号order_id的随机数组
     const arr = [ 3, 5, 8, 1, 9, 7, 0, 4, 2, 6 ];
     // 订单号order_id的随机数组位数

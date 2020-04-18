@@ -25,15 +25,15 @@ class ActivityController extends Controller {
     if (!reqData.content_id) { this.ctx.throw('动态ID不能为空'); }
 
     const content_id = Number(reqData.content_id);
-    await ctx.service.common.visitRecordAdd(user_id, content_id);
+    ctx.service.common.visitRecordAdd(user_id, content_id);
     const data = await ctx.service.content.activity.getDetailById(user_id, content_id);
     if (!data) { this.ctx.throw('该动态内容不存在'); }
 
     const images = await ctx.service.content.main.getPhotos(content_id);
     data.images = images;
-    data.add_time = new Date(data.add_time).toLocaleString();
+    data.add_time = this.ctx.service.base.fromatDate(new Date(data.add_time).getTime());
     data.is_end = new Date(data.closing_date).getTime() - new Date().getTime() > 0 ? 0 : 1;
-    data.closing_date = new Date(data.closing_date).toLocaleString();
+    data.closing_date = this.ctx.service.base.fromatDate(new Date(data.closing_date).getTime());
     ctx.body = {
       data,
     };

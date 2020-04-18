@@ -28,8 +28,8 @@ class TopicService extends Service {
     const results = await this.app.mysql.query(sqlstr);
     const list = results.map(item => {
       if (item.headimgurl.length < 100) item.headimgurl = this.app.config.publicAdd + item.headimgurl;
-      if (item.add_time) item.add_time = new Date(item.add_time).toLocaleString();
-      if (item.reply_time) item.reply_time = new Date(item.reply_time).toLocaleString();
+      if (item.add_time) item.add_time = this.ctx.service.base.fromatDate(new Date(item.add_time).getTime());
+      if (item.reply_time) item.reply_time = this.ctx.service.base.fromatDate(new Date(item.reply_time).getTime());
       return item;
     });
     return list;

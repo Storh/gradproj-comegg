@@ -44,7 +44,7 @@ class InfoService extends Service {
         type_id: specialityTypeId, // 职业特长
         rel_id: user_id,
       });
-      const specialityArr = speciality.map(async item => {
+      const specialityArr = speciality.map(item => {
         editInfo.insert(app.config.dbprefix + 'kind_relation', {
           type_id: specialityTypeId,
           rel_id: user_id,
@@ -60,7 +60,7 @@ class InfoService extends Service {
         type_id: hobbyTypeId, // 职业特长
         rel_id: user_id,
       });
-      const hobbyArr = hobby.map(async item => {
+      const hobbyArr = hobby.map(item => {
         editInfo.insert(app.config.dbprefix + 'kind_relation', {
           type_id: hobbyTypeId,
           rel_id: user_id,
