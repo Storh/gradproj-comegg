@@ -93,7 +93,7 @@ class MainController extends Controller {
       this.ctx.throw('收藏状态不能为空');
     }
 
-    const results = await ctx.service.content.main.setLike(user_id, reqData);
+    const results = await ctx.service.content.main.setCollect(user_id, reqData);
     if (results) {
       ctx.body = {
         data: {},
