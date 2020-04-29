@@ -11,6 +11,32 @@ const formatNumber = n => {
 };
 
 class BaseDataController extends Controller {
+  // 返回微信登陆链接
+  async authUserInfo() {
+    const { ctx } = this;
+    const redirectUrl = ctx.request.query.redirectUrl;
+    if (!redirectUrl) { this.ctx.throw('redirect_uri 参数错误'); }
+    const url = 'https://open.weixin.qq.com/connect/oauth2/authorize?appid=' + this.app.config.wx_appid + '&redirect_uri=' + redirectUrl + '&response_type=code&scope=snsapi_userinfo&state=1#wechat_redirect';
+    ctx.body = {
+      data: url,
+    };
+  }
+  // 获取微信信息和注册登录
+  async authUserInfoLogin() {
+    const { ctx } = this;
+    const code = ctx.request.body.code;
+    const get_access_token_url = 'https://api.weixin.qq.com/sns/oauth2/access_token?appid=' + this.app.config.wx_appid + '&secret=' + this.app.config.appSecret + '&code=' + code + '&grant_type=authorization_code';
+    const result = await ctx.curl(get_access_token_url);
+    const access_token = result.data.access_token;
+    const openid = result.data.openid;
+
+    const get_userinfo_url = `https://api.weixin.qq.com/sns/userinfo?access_token=${access_token}&openid=${openid}`;
+    const inforesult = await ctx.curl(get_userinfo_url);
+    const user_info_data = inforesult.data;
+    ctx.body = {
+      data: user_info_data,
+    };
+  }
   async distList() {
     const { ctx } = this;
     const list = await ctx.service.common.getListByType('estate');

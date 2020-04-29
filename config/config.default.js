@@ -58,6 +58,8 @@ module.exports = appInfo => {
   };
   // add your user config here
   const userConfig = {
+    wx_appid: '',
+    appSecret: '',
     // 采用app.config.XX访问
     dbprefix: 'al_', // 数据库表前缀
     serviceUrl: 'http://127.0.0.1:7001', // 服务器地址
