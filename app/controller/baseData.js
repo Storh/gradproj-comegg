@@ -21,22 +21,26 @@ class BaseDataController extends Controller {
       data: url,
     };
   }
+
   // 获取微信信息和注册登录
   async authUserInfoLogin() {
     const { ctx } = this;
-    const code = ctx.request.body.code;
-    const get_access_token_url = 'https://api.weixin.qq.com/sns/oauth2/access_token?appid=' + this.app.config.wx_appid + '&secret=' + this.app.config.appSecret + '&code=' + code + '&grant_type=authorization_code';
-    const result = await ctx.curl(get_access_token_url);
-    const access_token = result.data.access_token;
-    const openid = result.data.openid;
-
+    const code = ctx.request.body.code;// 获取凭证code
+    // 使用code获取OAuth2.0令牌和用户的openid
+    const get_access_token_url = `https://api.weixin.qq.com/sns/oauth2/access_token?appid=${this.app.config.wx_appid}&secret=${this.app.config.appSecret}&code=${code}&grant_type=authorization_code`;
+    const tokenresult = await ctx.curl(get_access_token_url);
+    const access_token = tokenresult.data.access_token;
+    const openid = tokenresult.data.openid;
+    // 使用令牌和openid获取用户信息
     const get_userinfo_url = `https://api.weixin.qq.com/sns/userinfo?access_token=${access_token}&openid=${openid}`;
     const inforesult = await ctx.curl(get_userinfo_url);
     const user_info_data = inforesult.data;
+    const data = await ctx.service.user.authUserInfoLogin(user_info_data);
     ctx.body = {
-      data: user_info_data,
+      data,
     };
   }
+
   async distList() {
     const { ctx } = this;
     const list = await ctx.service.common.getListByType('estate');
