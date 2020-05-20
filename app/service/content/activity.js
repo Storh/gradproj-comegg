@@ -216,6 +216,7 @@ AND file_id NOT IN (${photoIdArr.toString()})`;
           addmain.delete(app.config.dbprefix + 'upload_file_record', {
             file_id: item.file_id,
           });
+          ctx.service.common.delfile(item.src);
         });
 
         await addmain.update(app.config.dbprefix + 'upload_file_record',

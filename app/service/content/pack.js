@@ -543,6 +543,9 @@ ORDER BY
             file_id: delarr,
           });
         }
+        dellist.forEach(item => {
+          ctx.service.common.delfile(item.src);
+        });
         addmain.update(app.config.dbprefix + 'upload_file_record',
           { rel_id: content_id },
           { where: {

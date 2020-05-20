@@ -1,4 +1,6 @@
 'use strict';
+const fs = require('fs');
+const path = require('path');
 
 const Service = require('egg').Service;
 const formatNumber = n => {
@@ -193,6 +195,18 @@ class CommonService extends Service {
       };
     }
     this.ctx.throw('添加失败');
+  }
+
+  async delfile(delImg) {
+    // 文件位置
+    const uplaodBasePath = 'app/public/';
+    const target = path.join(uplaodBasePath, delImg);
+    fs.unlink(target, function(error) {
+      if (error) {
+        console.log(error);
+        return false;
+      }
+    });
   }
 }
 
