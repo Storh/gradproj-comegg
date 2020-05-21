@@ -62,6 +62,7 @@ class ReviewService extends Service {
       rel_id: review_id,
       content_id,
       regist_id: review_id,
+      content_type: contentInfo.type_id,
       title: userInfo.nickname + '评论了你的' + this.app.config.contentType[contentInfo.type_id - 1].name,
       desc: review_text,
     };
